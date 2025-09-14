@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: product-catalog
+  
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/productcatalog
+      auto-index-creation: true
+  
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+    consumer:
+      group-id: product-catalog-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.paklog.productcatalog
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    default-property-inclusion: NON_NULL
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  level:
+    com.paklog.productcatalog: DEBUG
+    org.springframework.data.mongodb: DEBUG
+  pattern:
+    console: "%d{ISO8601} [%thread] %-5level [%logger{36}] - %msg%n"
+
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+product-catalog:
+  kafka:
+    topics:
+      product-events: product.events
+  mongodb:
+    database: productcatalog
+    collections:
+      products: products

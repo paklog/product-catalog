@@ -1,0 +1,13 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27018/productcatalog-test
+  
+  kafka:
+    bootstrap-servers: localhost:29092
+
+logging:
+  level:
+    com.paklog.productcatalog: INFO
+    org.springframework.data.mongodb: INFO
+    org.testcontainers: INFO

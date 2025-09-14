@@ -1,0 +1,24 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://productcatalog:productcatalog123@mongodb:27017/productcatalog
+  
+  kafka:
+    bootstrap-servers: kafka:29092
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,env
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.paklog.productcatalog: INFO
+    org.springframework.data.mongodb: INFO
+    org.springframework.kafka: INFO
+  pattern:
+    console: "%d{ISO8601} [%thread] %-5level [%logger{36}] [%X{traceId},%X{spanId}] - %msg%n"
