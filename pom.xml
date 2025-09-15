@@ -21,7 +21,6 @@
     <properties>
         <java.version>21</java.version>
         <spring-cloud.version>2023.0.0</spring-cloud.version>
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
         <archunit.version>1.2.1</archunit.version>
         <testcontainers.version>1.19.3</testcontainers.version>
         <springdoc.version>2.2.0</springdoc.version>
@@ -61,12 +60,6 @@
             <version>${springdoc.version}</version>
         </dependency>
         
-        <!-- MapStruct for object mapping -->
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>${mapstruct.version}</version>
-        </dependency>
         
         <!-- Jackson for JSON processing -->
         <dependency>
@@ -130,13 +123,6 @@
                 <configuration>
                     <source>21</source>
                     <target>21</target>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${mapstruct.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             

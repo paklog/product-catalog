@@ -12,10 +12,10 @@ public record Dimensions(
         Objects.requireNonNull(item, "Item dimensions cannot be null");
         Objects.requireNonNull(packageDimensions, "Package dimensions cannot be null");
         
-        validateItemFitsInPackage();
+        validateItemFitsInPackage(item, packageDimensions);
     }
     
-    private void validateItemFitsInPackage() {
+    private void validateItemFitsInPackage(DimensionSet item, DimensionSet packageDimensions) {
         if (item.length().value().compareTo(packageDimensions.length().value()) > 0 ||
             item.width().value().compareTo(packageDimensions.width().value()) > 0 ||
             item.height().value().compareTo(packageDimensions.height().value()) > 0) {

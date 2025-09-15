@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SpringDataProductRepository extends MongoRepository<ProductEntity, String> {
+public interface ProductEntityRepository extends MongoRepository<ProductEntity, String> {
     
     Optional<ProductEntity> findBySku(String sku);
     

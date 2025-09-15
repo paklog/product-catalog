@@ -1,3 +1,4 @@
+/*
 package com.paklog.productcatalog.infrastructure.config;
 
 import com.paklog.productcatalog.domain.repository.ProductRepository;
@@ -71,3 +72,4 @@ public class HealthConfig {
         };
     }
 }
+*/

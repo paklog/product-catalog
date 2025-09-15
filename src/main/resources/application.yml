@@ -6,6 +6,16 @@ spring:
     mongodb:
       uri: mongodb://localhost:27017/productcatalog
       auto-index-creation: true
+      # Connection pool configuration for performance
+      options:
+        max-connection-pool-size: 50
+        min-connection-pool-size: 5
+        max-connection-idle-time: 30000
+        max-connection-life-time: 60000
+        connection-timeout: 5000
+        socket-timeout: 30000
+        server-selection-timeout: 5000
+        heartbeat-frequency: 10000
   
   kafka:
     bootstrap-servers: localhost:9092
@@ -65,3 +75,11 @@ product-catalog:
     database: productcatalog
     collections:
       products: products
+  pagination:
+    default-limit: 20
+    max-limit: 100
+    default-offset: 0
+  cors:
+    allowed-origins: "http://localhost:3000,http://localhost:8080"
+    allowed-methods: "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+    allowed-headers: "*"

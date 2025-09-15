@@ -17,12 +17,12 @@ public class MongoProductRepository implements ProductRepository {
     
     private static final Logger logger = LoggerFactory.getLogger(MongoProductRepository.class);
     
-    private final SpringDataProductRepository springDataRepository;
+    private final ProductEntityRepository entityRepository;
     private final ProductEntityMapper mapper;
     
-    public MongoProductRepository(SpringDataProductRepository springDataRepository, 
+    public MongoProductRepository(ProductEntityRepository entityRepository, 
                                 ProductEntityMapper mapper) {
-        this.springDataRepository = springDataRepository;
+        this.entityRepository = entityRepository;
         this.mapper = mapper;
     }
     
@@ -30,23 +30,29 @@ public class MongoProductRepository implements ProductRepository {
     public Product save(Product product) {
         logger.debug("Saving product with SKU: {}", product.getSku());
         
-        var entity = mapper.toEntity(product);
-        var savedEntity = springDataRepository.save(entity);
-        var savedProduct = mapper.toDomain(savedEntity);
-        
-        savedProduct.setVersion(savedEntity.getVersion());
-        
-        logger.debug("Product saved successfully with SKU: {}, Version: {}", 
-                    savedProduct.getSku(), savedProduct.getVersion());
-        
-        return savedProduct;
+        try {
+            var entity = mapper.toEntity(product);
+            var savedEntity = entityRepository.save(entity);
+            var savedProduct = mapper.toDomain(savedEntity);
+            
+            savedProduct.setVersion(savedEntity.getVersion());
+            
+            logger.debug("Product saved successfully with SKU: {}, Version: {}", 
+                        savedProduct.getSku(), savedProduct.getVersion());
+            
+            return savedProduct;
+        } catch (org.springframework.dao.DuplicateKeyException e) {
+            logger.warn("Attempted to save product with duplicate SKU: {}", product.getSku());
+            throw new com.paklog.productcatalog.shared.exception.ProductAlreadyExistsException(
+                "Product with SKU " + product.getSku() + " already exists");
+        }
     }
     
     @Override
     public Optional<Product> findBySku(SKU sku) {
         logger.debug("Finding product by SKU: {}", sku);
         
-        return springDataRepository.findBySku(sku.value())
+        return entityRepository.findBySku(sku.value())
                 .map(entity -> {
                     var product = mapper.toDomain(entity);
                     product.setVersion(entity.getVersion());
@@ -58,7 +64,7 @@ public class MongoProductRepository implements ProductRepository {
     public Page<Product> findAll(Pageable pageable) {
         logger.debug("Finding all products with pageable: {}", pageable);
         
-        return springDataRepository.findAll(pageable)
+        return entityRepository.findAll(pageable)
                 .map(entity -> {
                     var product = mapper.toDomain(entity);
                     product.setVersion(entity.getVersion());
@@ -69,23 +75,23 @@ public class MongoProductRepository implements ProductRepository {
     @Override
     public boolean existsBySku(SKU sku) {
         logger.debug("Checking existence of product with SKU: {}", sku);
-        return springDataRepository.existsBySku(sku.value());
+        return entityRepository.existsBySku(sku.value());
     }
     
     @Override
     public void delete(Product product) {
         logger.debug("Deleting product with SKU: {}", product.getSku());
-        springDataRepository.deleteBySku(product.getSku().value());
+        entityRepository.deleteBySku(product.getSku().value());
     }
     
     @Override
     public void deleteBySku(SKU sku) {
         logger.debug("Deleting product by SKU: {}", sku);
-        springDataRepository.deleteBySku(sku.value());
+        entityRepository.deleteBySku(sku.value());
     }
     
     @Override
     public long count() {
-        return springDataRepository.count();
+        return entityRepository.count();
     }
 }

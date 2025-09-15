@@ -2,68 +2,167 @@ package com.paklog.productcatalog.infrastructure.web.mapper;
 
 import com.paklog.productcatalog.domain.model.*;
 import com.paklog.productcatalog.infrastructure.web.dto.ProductDto;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface ProductDtoMapper {
+@Component
+public class ProductDtoMapper {
     
-    @Mapping(source = "sku.value", target = "sku")
-    ProductDto toDto(Product product);
-    
-    @Mapping(source = "sku", target = "sku", qualifiedByName = "stringToSku")
-    Product toDomain(ProductDto dto);
-    
-    @org.mapstruct.Named("stringToSku")
-    default SKU stringToSku(String sku) {
-        return sku != null ? SKU.of(sku) : null;
+    public ProductDto toDto(Product product) {
+        if (product == null) {
+            return null;
+        }
+        
+        return new ProductDto(
+            product.getSku().value(),
+            product.getTitle(),
+            mapDimensions(product.getDimensions()),
+            mapAttributes(product.getAttributes())
+        );
     }
     
-    @Mapping(source = "packageDimensions", target = "package")
-    ProductDto.DimensionsDto map(Dimensions dimensions);
-    
-    @Mapping(source = "package", target = "packageDimensions")
-    Dimensions map(ProductDto.DimensionsDto dimensionsDto);
-    
-    ProductDto.DimensionSetDto map(DimensionSet dimensionSet);
-    DimensionSet map(ProductDto.DimensionSetDto dimensionSetDto);
-    
-    @Mapping(source = "unit", target = "unit", qualifiedByName = "dimensionUnitToDto")
-    ProductDto.DimensionMeasurementDto map(DimensionMeasurement dimensionMeasurement);
-    
-    @Mapping(source = "unit", target = "unit", qualifiedByName = "dtoToDimensionUnit")
-    DimensionMeasurement map(ProductDto.DimensionMeasurementDto dimensionMeasurementDto);
-    
-    @Mapping(source = "unit", target = "unit", qualifiedByName = "weightUnitToDto")
-    ProductDto.WeightMeasurementDto map(WeightMeasurement weightMeasurement);
-    
-    @Mapping(source = "unit", target = "unit", qualifiedByName = "dtoToWeightUnit")
-    WeightMeasurement map(ProductDto.WeightMeasurementDto weightMeasurementDto);
-    
-    ProductDto.AttributesDto map(Attributes attributes);
-    Attributes map(ProductDto.AttributesDto attributesDto);
-    
-    ProductDto.HazmatInfoDto map(HazmatInfo hazmatInfo);
-    HazmatInfo map(ProductDto.HazmatInfoDto hazmatInfoDto);
-    
-    @org.mapstruct.Named("dimensionUnitToDto")
-    default ProductDto.DimensionUnitDto dimensionUnitToDto(DimensionMeasurement.DimensionUnit unit) {
-        return unit != null ? ProductDto.DimensionUnitDto.valueOf(unit.name()) : null;
+    public Product toDomain(ProductDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        
+        SKU sku = SKU.of(dto.sku());
+        Dimensions dimensions = mapDimensions(dto.dimensions());
+        Attributes attributes = mapAttributes(dto.attributes());
+        
+        return Product.create(sku, dto.title(), dimensions, attributes);
     }
     
-    @org.mapstruct.Named("dtoToDimensionUnit")
-    default DimensionMeasurement.DimensionUnit dtoToDimensionUnit(ProductDto.DimensionUnitDto unit) {
-        return unit != null ? DimensionMeasurement.DimensionUnit.valueOf(unit.name()) : null;
+    private ProductDto.DimensionsDto mapDimensions(Dimensions dimensions) {
+        if (dimensions == null) {
+            return null;
+        }
+        
+        return new ProductDto.DimensionsDto(
+            mapDimensionSet(dimensions.item()),
+            mapDimensionSet(dimensions.packageDimensions())
+        );
     }
     
-    @org.mapstruct.Named("weightUnitToDto")
-    default ProductDto.WeightUnitDto weightUnitToDto(WeightMeasurement.WeightUnit unit) {
-        return unit != null ? ProductDto.WeightUnitDto.valueOf(unit.name()) : null;
+    private Dimensions mapDimensions(ProductDto.DimensionsDto dimensionsDto) {
+        if (dimensionsDto == null) {
+            return null;
+        }
+        
+        return new Dimensions(
+            mapDimensionSet(dimensionsDto.item()),
+            mapDimensionSet(dimensionsDto.packageDimensions())
+        );
     }
     
-    @org.mapstruct.Named("dtoToWeightUnit")
-    default WeightMeasurement.WeightUnit dtoToWeightUnit(ProductDto.WeightUnitDto unit) {
-        return unit != null ? WeightMeasurement.WeightUnit.valueOf(unit.name()) : null;
+    private ProductDto.DimensionSetDto mapDimensionSet(DimensionSet dimensionSet) {
+        if (dimensionSet == null) {
+            return null;
+        }
+        
+        return new ProductDto.DimensionSetDto(
+            mapDimensionMeasurement(dimensionSet.length()),
+            mapDimensionMeasurement(dimensionSet.width()),
+            mapDimensionMeasurement(dimensionSet.height()),
+            mapWeightMeasurement(dimensionSet.weight())
+        );
+    }
+    
+    private DimensionSet mapDimensionSet(ProductDto.DimensionSetDto dimensionSetDto) {
+        if (dimensionSetDto == null) {
+            return null;
+        }
+        
+        return new DimensionSet(
+            mapDimensionMeasurement(dimensionSetDto.length()),
+            mapDimensionMeasurement(dimensionSetDto.width()),
+            mapDimensionMeasurement(dimensionSetDto.height()),
+            mapWeightMeasurement(dimensionSetDto.weight())
+        );
+    }
+    
+    private ProductDto.DimensionMeasurementDto mapDimensionMeasurement(DimensionMeasurement dimensionMeasurement) {
+        if (dimensionMeasurement == null) {
+            return null;
+        }
+        
+        return new ProductDto.DimensionMeasurementDto(
+            dimensionMeasurement.value(),
+            ProductDto.DimensionUnitDto.valueOf(dimensionMeasurement.unit().name())
+        );
+    }
+    
+    private DimensionMeasurement mapDimensionMeasurement(ProductDto.DimensionMeasurementDto dimensionMeasurementDto) {
+        if (dimensionMeasurementDto == null) {
+            return null;
+        }
+        
+        return new DimensionMeasurement(
+            dimensionMeasurementDto.value(),
+            DimensionMeasurement.DimensionUnit.valueOf(dimensionMeasurementDto.unit().name())
+        );
+    }
+    
+    private ProductDto.WeightMeasurementDto mapWeightMeasurement(WeightMeasurement weightMeasurement) {
+        if (weightMeasurement == null) {
+            return null;
+        }
+        
+        return new ProductDto.WeightMeasurementDto(
+            weightMeasurement.value(),
+            ProductDto.WeightUnitDto.valueOf(weightMeasurement.unit().name())
+        );
+    }
+    
+    private WeightMeasurement mapWeightMeasurement(ProductDto.WeightMeasurementDto weightMeasurementDto) {
+        if (weightMeasurementDto == null) {
+            return null;
+        }
+        
+        return new WeightMeasurement(
+            weightMeasurementDto.value(),
+            WeightMeasurement.WeightUnit.valueOf(weightMeasurementDto.unit().name())
+        );
+    }
+    
+    private ProductDto.AttributesDto mapAttributes(Attributes attributes) {
+        if (attributes == null) {
+            return null;
+        }
+        
+        return new ProductDto.AttributesDto(
+            mapHazmatInfo(attributes.hazmatInfo())
+        );
+    }
+    
+    private Attributes mapAttributes(ProductDto.AttributesDto attributesDto) {
+        if (attributesDto == null) {
+            return null;
+        }
+        
+        return new Attributes(
+            mapHazmatInfo(attributesDto.hazmatInfo())
+        );
+    }
+    
+    private ProductDto.HazmatInfoDto mapHazmatInfo(HazmatInfo hazmatInfo) {
+        if (hazmatInfo == null) {
+            return null;
+        }
+        
+        return new ProductDto.HazmatInfoDto(
+            hazmatInfo.isHazmat(),
+            hazmatInfo.unNumber()
+        );
+    }
+    
+    private HazmatInfo mapHazmatInfo(ProductDto.HazmatInfoDto hazmatInfoDto) {
+        if (hazmatInfoDto == null) {
+            return null;
+        }
+        
+        return new HazmatInfo(
+            hazmatInfoDto.isHazmat(),
+            hazmatInfoDto.unNumber()
+        );
     }
 }

@@ -33,11 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Product Controller Integration Tests")
 class ProductControllerTest {
     
-    @Autowired
-    private MockMvc mockMvc;
-    
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
     
     @MockBean
     private CreateProductUseCase createProductUseCase;
@@ -56,6 +53,11 @@ class ProductControllerTest {
     
     private final String testSku = "TEST-SKU-123";
     private final String testTitle = "Test Product";
+    
+    public ProductControllerTest(@Autowired MockMvc mockMvc, @Autowired ObjectMapper objectMapper) {
+        this.mockMvc = mockMvc;
+        this.objectMapper = objectMapper;
+    }
     
     @BeforeEach
     void setUp() {
@@ -104,7 +106,7 @@ class ProductControllerTest {
         mockMvc.perform(post("/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpected(status().isConflict())
+                .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message").value("Product with SKU " + testSku + " already exists"));
     }
     
@@ -150,6 +152,7 @@ class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.totalPages").value(1))
                 .andExpect(jsonPath("$.totalElements").value(2));
     }
     

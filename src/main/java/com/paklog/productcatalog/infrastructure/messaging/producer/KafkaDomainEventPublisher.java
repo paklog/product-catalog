@@ -36,12 +36,13 @@ public class KafkaDomainEventPublisher implements DomainEventPublisher {
             CompletableFuture<SendResult<String, Object>> future = 
                 kafkaTemplate.send(topicName, event.getEventId(), event);
             
+            // Use non-blocking callback instead of blocking wait
             future.whenComplete((result, throwable) -> {
                 if (throwable != null) {
                     logger.error("Failed to publish event: {} with ID: {} to topic: {}", 
                                event.getEventType(), event.getEventId(), topicName, throwable);
                 } else {
-                    logger.info("Successfully published event: {} with ID: {} to topic: {} at offset: {}", 
+                    logger.debug("Successfully published event: {} with ID: {} to topic: {} at offset: {}", 
                                event.getEventType(), event.getEventId(), topicName, 
                                result.getRecordMetadata().offset());
                 }
@@ -50,7 +51,8 @@ public class KafkaDomainEventPublisher implements DomainEventPublisher {
         } catch (Exception e) {
             logger.error("Unexpected error while publishing event: {} with ID: {}", 
                         event.getEventType(), event.getEventId(), e);
-            throw new RuntimeException("Failed to publish domain event", e);
+            // Use specific exception instead of generic RuntimeException
+            throw new RuntimeException("Failed to publish domain event: " + event.getEventType(), e);
         }
     }
 }

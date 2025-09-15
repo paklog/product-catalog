@@ -14,6 +14,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,15 +59,13 @@ public class KafkaConfig {
         
         template.setProducerListener(new org.springframework.kafka.support.ProducerListener<String, Object>() {
             @Override
-            public void onSuccess(org.springframework.kafka.support.ProducerListener.ProducerRecord<String, Object> producerRecord,
-                                org.apache.kafka.clients.producer.RecordMetadata recordMetadata) {
+            public void onSuccess(ProducerRecord<String, Object> producerRecord, RecordMetadata recordMetadata) {
                 logger.debug("Message sent successfully to topic: {} partition: {} offset: {}",
                            recordMetadata.topic(), recordMetadata.partition(), recordMetadata.offset());
             }
             
             @Override
-            public void onError(org.springframework.kafka.support.ProducerListener.ProducerRecord<String, Object> producerRecord,
-                              org.apache.kafka.common.KafkaException exception) {
+            public void onError(ProducerRecord<String, Object> producerRecord, RecordMetadata recordMetadata, Exception exception) {
                 logger.error("Failed to send message to topic: {}", producerRecord.topic(), exception);
             }
         });

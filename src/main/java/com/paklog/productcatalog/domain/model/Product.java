@@ -31,8 +31,19 @@ public class Product {
     private Instant updatedAt;
     private Long version;
     
-    private final List<DomainEvent> domainEvents = new ArrayList<>();
+    private List<DomainEvent> domainEvents = new ArrayList<>();
     
+    public Product(SKU sku, String title, Dimensions dimensions, Attributes attributes, Instant createdAt, Instant updatedAt, Long version) {
+        this.sku = sku;
+        this.title = title;
+        this.dimensions = dimensions;
+        this.attributes = attributes;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.version = version;
+        this.domainEvents = new java.util.ArrayList<>();
+    }
+
     private Product(SKU sku, String title, Dimensions dimensions, Attributes attributes) {
         this.sku = Objects.requireNonNull(sku, "SKU cannot be null");
         this.title = validateTitle(title);

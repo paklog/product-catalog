@@ -2,69 +2,172 @@ package com.paklog.productcatalog.infrastructure.persistence.mapper;
 
 import com.paklog.productcatalog.domain.model.*;
 import com.paklog.productcatalog.infrastructure.persistence.entity.ProductEntity;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface ProductEntityMapper {
+@Component
+public class ProductEntityMapper {
     
-    @Mapping(source = "sku.value", target = "sku")
-    @Mapping(source = "dimensions", target = "dimensions")
-    @Mapping(source = "attributes", target = "attributes")
-    ProductEntity toEntity(Product product);
-    
-    @Mapping(source = "sku", target = "sku", qualifiedByName = "stringToSku")
-    @Mapping(source = "dimensions", target = "dimensions")
-    @Mapping(source = "attributes", target = "attributes")
-    Product toDomain(ProductEntity entity);
-    
-    @org.mapstruct.Named("stringToSku")
-    default SKU stringToSku(String sku) {
-        return sku != null ? SKU.of(sku) : null;
+    public ProductEntity toEntity(Product product) {
+        if (product == null) {
+            return null;
+        }
+        
+        ProductEntity entity = new ProductEntity();
+        entity.setSku(product.getSku().value());
+        entity.setTitle(product.getTitle());
+        entity.setDimensions(mapDimensions(product.getDimensions()));
+        entity.setAttributes(mapAttributes(product.getAttributes()));
+        entity.setCreatedAt(product.getCreatedAt());
+        entity.setUpdatedAt(product.getUpdatedAt());
+        entity.setVersion(product.getVersion());
+        
+        return entity;
     }
     
-    ProductEntity.DimensionsEntity map(Dimensions dimensions);
-    Dimensions map(ProductEntity.DimensionsEntity dimensionsEntity);
-    
-    ProductEntity.DimensionSetEntity map(DimensionSet dimensionSet);
-    DimensionSet map(ProductEntity.DimensionSetEntity dimensionSetEntity);
-    
-    @Mapping(source = "unit", target = "unit", qualifiedByName = "dimensionUnitToString")
-    ProductEntity.DimensionMeasurementEntity map(DimensionMeasurement dimensionMeasurement);
-    
-    @Mapping(source = "unit", target = "unit", qualifiedByName = "stringToDimensionUnit")
-    DimensionMeasurement map(ProductEntity.DimensionMeasurementEntity dimensionMeasurementEntity);
-    
-    @Mapping(source = "unit", target = "unit", qualifiedByName = "weightUnitToString")
-    ProductEntity.WeightMeasurementEntity map(WeightMeasurement weightMeasurement);
-    
-    @Mapping(source = "unit", target = "unit", qualifiedByName = "stringToWeightUnit")
-    WeightMeasurement map(ProductEntity.WeightMeasurementEntity weightMeasurementEntity);
-    
-    ProductEntity.AttributesEntity map(Attributes attributes);
-    Attributes map(ProductEntity.AttributesEntity attributesEntity);
-    
-    ProductEntity.HazmatInfoEntity map(HazmatInfo hazmatInfo);
-    HazmatInfo map(ProductEntity.HazmatInfoEntity hazmatInfoEntity);
-    
-    @org.mapstruct.Named("dimensionUnitToString")
-    default String dimensionUnitToString(DimensionMeasurement.DimensionUnit unit) {
-        return unit != null ? unit.name() : null;
+    public Product toDomain(ProductEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        
+        SKU sku = SKU.of(entity.getSku());
+        Dimensions dimensions = mapDimensions(entity.getDimensions());
+        Attributes attributes = mapAttributes(entity.getAttributes());
+        
+        return new Product(sku, entity.getTitle(), dimensions, attributes, 
+                          entity.getCreatedAt(), entity.getUpdatedAt(), entity.getVersion());
     }
     
-    @org.mapstruct.Named("stringToDimensionUnit")
-    default DimensionMeasurement.DimensionUnit stringToDimensionUnit(String unit) {
-        return unit != null ? DimensionMeasurement.DimensionUnit.valueOf(unit) : null;
+    private ProductEntity.DimensionsEntity mapDimensions(Dimensions dimensions) {
+        if (dimensions == null) {
+            return null;
+        }
+        
+        return new ProductEntity.DimensionsEntity(
+            mapDimensionSet(dimensions.item()),
+            mapDimensionSet(dimensions.packageDimensions())
+        );
     }
     
-    @org.mapstruct.Named("weightUnitToString")
-    default String weightUnitToString(WeightMeasurement.WeightUnit unit) {
-        return unit != null ? unit.name() : null;
+    private Dimensions mapDimensions(ProductEntity.DimensionsEntity dimensionsEntity) {
+        if (dimensionsEntity == null) {
+            return null;
+        }
+        
+        return new Dimensions(
+            mapDimensionSet(dimensionsEntity.getItem()),
+            mapDimensionSet(dimensionsEntity.getPackageDimensions())
+        );
     }
     
-    @org.mapstruct.Named("stringToWeightUnit")
-    default WeightMeasurement.WeightUnit stringToWeightUnit(String unit) {
-        return unit != null ? WeightMeasurement.WeightUnit.valueOf(unit) : null;
+    private ProductEntity.DimensionSetEntity mapDimensionSet(DimensionSet dimensionSet) {
+        if (dimensionSet == null) {
+            return null;
+        }
+        
+        return new ProductEntity.DimensionSetEntity(
+            mapDimensionMeasurement(dimensionSet.length()),
+            mapDimensionMeasurement(dimensionSet.width()),
+            mapDimensionMeasurement(dimensionSet.height()),
+            mapWeightMeasurement(dimensionSet.weight())
+        );
+    }
+    
+    private DimensionSet mapDimensionSet(ProductEntity.DimensionSetEntity dimensionSetEntity) {
+        if (dimensionSetEntity == null) {
+            return null;
+        }
+        
+        return new DimensionSet(
+            mapDimensionMeasurement(dimensionSetEntity.getLength()),
+            mapDimensionMeasurement(dimensionSetEntity.getWidth()),
+            mapDimensionMeasurement(dimensionSetEntity.getHeight()),
+            mapWeightMeasurement(dimensionSetEntity.getWeight())
+        );
+    }
+    
+    private ProductEntity.DimensionMeasurementEntity mapDimensionMeasurement(DimensionMeasurement dimensionMeasurement) {
+        if (dimensionMeasurement == null) {
+            return null;
+        }
+        
+        return new ProductEntity.DimensionMeasurementEntity(
+            dimensionMeasurement.value(),
+            dimensionMeasurement.unit().name()
+        );
+    }
+    
+    private DimensionMeasurement mapDimensionMeasurement(ProductEntity.DimensionMeasurementEntity dimensionMeasurementEntity) {
+        if (dimensionMeasurementEntity == null) {
+            return null;
+        }
+        
+        return new DimensionMeasurement(
+            dimensionMeasurementEntity.getValue(),
+            DimensionMeasurement.DimensionUnit.valueOf(dimensionMeasurementEntity.getUnit())
+        );
+    }
+    
+    private ProductEntity.WeightMeasurementEntity mapWeightMeasurement(WeightMeasurement weightMeasurement) {
+        if (weightMeasurement == null) {
+            return null;
+        }
+        
+        return new ProductEntity.WeightMeasurementEntity(
+            weightMeasurement.value(),
+            weightMeasurement.unit().name()
+        );
+    }
+    
+    private WeightMeasurement mapWeightMeasurement(ProductEntity.WeightMeasurementEntity weightMeasurementEntity) {
+        if (weightMeasurementEntity == null) {
+            return null;
+        }
+        
+        return new WeightMeasurement(
+            weightMeasurementEntity.getValue(),
+            WeightMeasurement.WeightUnit.valueOf(weightMeasurementEntity.getUnit())
+        );
+    }
+    
+    private ProductEntity.AttributesEntity mapAttributes(Attributes attributes) {
+        if (attributes == null) {
+            return null;
+        }
+        
+        return new ProductEntity.AttributesEntity(
+            mapHazmatInfo(attributes.hazmatInfo())
+        );
+    }
+    
+    private Attributes mapAttributes(ProductEntity.AttributesEntity attributesEntity) {
+        if (attributesEntity == null) {
+            return null;
+        }
+        
+        return new Attributes(
+            mapHazmatInfo(attributesEntity.getHazmatInfo())
+        );
+    }
+    
+    private ProductEntity.HazmatInfoEntity mapHazmatInfo(HazmatInfo hazmatInfo) {
+        if (hazmatInfo == null) {
+            return null;
+        }
+        
+        return new ProductEntity.HazmatInfoEntity(
+            hazmatInfo.isHazmat(),
+            hazmatInfo.unNumber()
+        );
+    }
+    
+    private HazmatInfo mapHazmatInfo(ProductEntity.HazmatInfoEntity hazmatInfoEntity) {
+        if (hazmatInfoEntity == null) {
+            return null;
+        }
+        
+        return new HazmatInfo(
+            hazmatInfoEntity.isHazmat(),
+            hazmatInfoEntity.getUnNumber()
+        );
     }
 }

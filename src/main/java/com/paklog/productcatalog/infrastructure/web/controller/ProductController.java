@@ -13,6 +13,7 @@ import com.paklog.productcatalog.application.query.ListProductsQuery;
 import com.paklog.productcatalog.domain.model.SKU;
 import com.paklog.productcatalog.infrastructure.web.dto.ErrorDto;
 import com.paklog.productcatalog.infrastructure.web.dto.ProductDto;
+import com.paklog.productcatalog.infrastructure.web.dto.ProductPageDto;
 import com.paklog.productcatalog.infrastructure.web.mapper.ProductDtoMapper;
 import com.paklog.productcatalog.shared.exception.ProductAlreadyExistsException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +37,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/products")
 @Tag(name = "Products", description = "Operations related to the Product Catalog")
-@CrossOrigin(origins = "*")
 public class ProductController {
     
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
@@ -46,17 +46,20 @@ public class ProductController {
     private final UpdateProductUseCase updateProductUseCase;
     private final DeleteProductUseCase deleteProductUseCase;
     private final ProductDtoMapper mapper;
+    private final com.paklog.productcatalog.infrastructure.config.PaginationConfig paginationConfig;
     
     public ProductController(CreateProductUseCase createProductUseCase,
                            GetProductUseCase getProductUseCase,
                            UpdateProductUseCase updateProductUseCase,
                            DeleteProductUseCase deleteProductUseCase,
-                           ProductDtoMapper mapper) {
+                           ProductDtoMapper mapper,
+                           com.paklog.productcatalog.infrastructure.config.PaginationConfig paginationConfig) {
         this.createProductUseCase = createProductUseCase;
         this.getProductUseCase = getProductUseCase;
         this.updateProductUseCase = updateProductUseCase;
         this.deleteProductUseCase = deleteProductUseCase;
         this.mapper = mapper;
+        this.paginationConfig = paginationConfig;
     }
     
     @PostMapping
@@ -98,20 +101,33 @@ public class ProductController {
         description = "Retrieves a paginated list of all products in the catalog."
     )
     @ApiResponse(responseCode = "200", description = "A paged array of products")
-    public ResponseEntity<Page<ProductDto>> listProducts(
+    public ResponseEntity<ProductPageDto> listProducts(
         @Parameter(description = "The number of items to skip for pagination")
-        @RequestParam(defaultValue = "0") @Min(0) int offset,
+        @RequestParam(required = false) @Min(0) Integer offset,
         
         @Parameter(description = "The number of items to return")
-        @RequestParam(defaultValue = "20") @Min(1) @Max(100) int limit
+        @RequestParam(required = false) @Min(1) Integer limit
     ) {
-        logger.debug("Listing products with offset: {} and limit: {}", offset, limit);
+        // Use configuration defaults if not provided
+        int actualOffset = offset != null ? offset : paginationConfig.getDefaultOffset();
+        int actualLimit = limit != null ? Math.min(limit, paginationConfig.getMaxLimit()) : paginationConfig.getDefaultLimit();
+        logger.debug("Listing products with offset: {} and limit: {}", actualOffset, actualLimit);
         
-        var query = ListProductsQuery.of(offset, limit);
+        var query = ListProductsQuery.of(actualOffset, actualLimit);
         var products = getProductUseCase.listProducts(query);
-        var productDtos = products.map(mapper::toDto);
+        var productDtos = products.map(mapper::toDto).getContent();
         
-        return ResponseEntity.ok(productDtos);
+        var response = new ProductPageDto(
+            productDtos,
+            products.getTotalPages(),
+            products.getTotalElements(),
+            products.getNumber(),
+            products.getSize(),
+            products.isFirst(),
+            products.isLast()
+        );
+        
+        return ResponseEntity.ok(response);
     }
     
     @GetMapping("/{sku}")
