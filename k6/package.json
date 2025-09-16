@@ -1,0 +1,13 @@
+{
+  "name": "k6-load-tests",
+  "version": "1.0.0",
+  "description": "k6 load tests for the Product Catalog API",
+  "main": "load-test.js",
+  "scripts": {
+    "load-test": "k6 run load-test.js",
+    "stress-test": "k6 run stress-test.js",
+    "spike-test": "k6 run spike-test.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
