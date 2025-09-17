@@ -1,0 +1,453 @@
+
+[
+  {
+    "sku": "BOOK-PB-001",
+    "title": "Standard Paperback Book",
+    "dimensions": {
+      "item": { "length": { "value": 20, "unit": "INCHES" }, "width": { "value": 13, "unit": "INCHES" }, "height": { "value": 2.5, "unit": "INCHES" }, "weight": { "value": 0.3, "unit": "POUNDS" } },
+      "package": { "length": { "value": 21, "unit": "INCHES" }, "width": { "value": 14, "unit": "INCHES" }, "height": { "value": 3, "unit": "INCHES" }, "weight": { "value": 0.4, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "PHONE-S-002",
+    "title": "Smartphone",
+    "dimensions": {
+      "item": { "length": { "value": 14.76, "unit": "INCHES" }, "width": { "value": 7.16, "unit": "INCHES" }, "height": { "value": 0.78, "unit": "INCHES" }, "weight": { "value": 0.171, "unit": "POUNDS" } },
+      "package": { "length": { "value": 16, "unit": "INCHES" }, "width": { "value": 8, "unit": "INCHES" }, "height": { "value": 2, "unit": "INCHES" }, "weight": { "value": 0.3, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "MUG-C-003",
+    "title": "Coffee Mug",
+    "dimensions": {
+      "item": { "length": { "value": 9.5, "unit": "INCHES" }, "width": { "value": 8, "unit": "INCHES" }, "height": { "value": 8, "unit": "INCHES" }, "weight": { "value": 0.35, "unit": "POUNDS" } },
+      "package": { "length": { "value": 11, "unit": "INCHES" }, "width": { "value": 10, "unit": "INCHES" }, "height": { "value": 10, "unit": "INCHES" }, "weight": { "value": 0.5, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "LAPTOP-13-004",
+    "title": "13-inch Laptop",
+    "dimensions": {
+      "item": { "length": { "value": 30.41, "unit": "INCHES" }, "width": { "value": 21.5, "unit": "INCHES" }, "height": { "value": 1.13, "unit": "INCHES" }, "weight": { "value": 1.24, "unit": "POUNDS" } },
+      "package": { "length": { "value": 35, "unit": "INCHES" }, "width": { "value": 25, "unit": "INCHES" }, "height": { "value": 5, "unit": "INCHES" }, "weight": { "value": 2, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "CHAIR-W-005",
+    "title": "Dining Chair",
+    "dimensions": {
+      "item": { "length": { "value": 90, "unit": "INCHES" }, "width": { "value": 45, "unit": "INCHES" }, "height": { "value": 50, "unit": "INCHES" }, "weight": { "value": 6, "unit": "POUNDS" } },
+      "package": { "length": { "value": 95, "unit": "INCHES" }, "width": { "value": 50, "unit": "INCHES" }, "height": { "value": 55, "unit": "INCHES" }, "weight": { "value": 7, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "BATTERY-AA-006",
+    "title": "AA Battery",
+    "dimensions": {
+      "item": { "length": { "value": 5.05, "unit": "INCHES" }, "width": { "value": 1.45, "unit": "INCHES" }, "height": { "value": 1.45, "unit": "INCHES" }, "weight": { "value": 0.023, "unit": "POUNDS" } },
+      "package": { "length": { "value": 6, "unit": "INCHES" }, "width": { "value": 2, "unit": "INCHES" }, "height": { "value": 2, "unit": "INCHES" }, "weight": { "value": 0.03, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": true, "unNumber": "UN3090" } }
+  },
+  {
+    "sku": "MILK-G-007",
+    "title": "Gallon of Milk",
+    "dimensions": {
+      "item": { "length": { "value": 24, "unit": "INCHES" }, "width": { "value": 15, "unit": "INCHES" }, "height": { "value": 10, "unit": "INCHES" }, "weight": { "value": 3.9, "unit": "POUNDS" } },
+      "package": { "length": { "value": 25, "unit": "INCHES" }, "width": { "value": 16, "unit": "INCHES" }, "height": { "value": 11, "unit": "INCHES" }, "weight": { "value": 4, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "TOASTER-2S-008",
+    "title": "2-slice Toaster",
+    "dimensions": {
+      "item": { "length": { "value": 18, "unit": "INCHES" }, "width": { "value": 27, "unit": "INCHES" }, "height": { "value": 17, "unit": "INCHES" }, "weight": { "value": 1.4, "unit": "POUNDS" } },
+      "package": { "length": { "value": 20, "unit": "INCHES" }, "width": { "value": 30, "unit": "INCHES" }, "height": { "value": 20, "unit": "INCHES" }, "weight": { "value": 2, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "MWAVE-C-009",
+    "title": "Compact Microwave Oven",
+    "dimensions": {
+      "item": { "length": { "value": 26, "unit": "INCHES" }, "width": { "value": 45, "unit": "INCHES" }, "height": { "value": 35, "unit": "INCHES" }, "weight": { "value": 12, "unit": "POUNDS" } },
+      "package": { "length": { "value": 30, "unit": "INCHES" }, "width": { "value": 50, "unit": "INCHES" }, "height": { "value": 40, "unit": "INCHES" }, "weight": { "value": 15, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "SBALL-S5-010",
+    "title": "Soccer Ball (Size 5)",
+    "dimensions": {
+      "item": { "length": { "value": 22, "unit": "INCHES" }, "width": { "value": 22, "unit": "INCHES" }, "height": { "value": 22, "unit": "INCHES" }, "weight": { "value": 0.45, "unit": "POUNDS" } },
+      "package": { "length": { "value": 25, "unit": "INCHES" }, "width": { "value": 25, "unit": "INCHES" }, "height": { "value": 25, "unit": "INCHES" }, "weight": { "value": 0.6, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Tshirt-M-011",
+    "title": "T-shirt, Medium",
+    "dimensions": {
+      "item": { "length": { "value": 70, "unit": "INCHES" }, "width": { "value": 50, "unit": "INCHES" }, "height": { "value": 1, "unit": "INCHES" }, "weight": { "value": 0.2, "unit": "POUNDS" } },
+      "package": { "length": { "value": 30, "unit": "INCHES" }, "width": { "value": 20, "unit": "INCHES" }, "height": { "value": 2, "unit": "INCHES" }, "weight": { "value": 0.3, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Jeans-32-012",
+    "title": "Jeans, 32 Waist",
+    "dimensions": {
+      "item": { "length": { "value": 105, "unit": "INCHES" }, "width": { "value": 40, "unit": "INCHES" }, "height": { "value": 2, "unit": "INCHES" }, "weight": { "value": 0.7, "unit": "POUNDS" } },
+      "package": { "length": { "value": 40, "unit": "INCHES" }, "width": { "value": 30, "unit": "INCHES" }, "height": { "value": 5, "unit": "INCHES" }, "weight": { "value": 0.8, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Shoes-10-013",
+    "title": "Running Shoes, Size 10",
+    "dimensions": {
+      "item": { "length": { "value": 30, "unit": "INCHES" }, "width": { "value": 12, "unit": "INCHES" }, "height": { "value": 10, "unit": "INCHES" }, "weight": { "value": 0.8, "unit": "POUNDS" } },
+      "package": { "length": { "value": 35, "unit": "INCHES" }, "width": { "value": 15, "unit": "INCHES" }, "height": { "value": 12, "unit": "INCHES" }, "weight": { "value": 1, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Watch-S-014",
+    "title": "Smart Watch",
+    "dimensions": {
+      "item": { "length": { "value": 4.5, "unit": "INCHES" }, "width": { "value": 3.8, "unit": "INCHES" }, "height": { "value": 1, "unit": "INCHES" }, "weight": { "value": 0.05, "unit": "POUNDS" } },
+      "package": { "length": { "value": 10, "unit": "INCHES" }, "width": { "value": 8, "unit": "INCHES" }, "height": { "value": 5, "unit": "INCHES" }, "weight": { "value": 0.2, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Keyboard-M-015",
+    "title": "Mechanical Keyboard",
+    "dimensions": {
+      "item": { "length": { "value": 45, "unit": "INCHES" }, "width": { "value": 15, "unit": "INCHES" }, "height": { "value": 4, "unit": "INCHES" }, "weight": { "value": 1.2, "unit": "POUNDS" } },
+      "package": { "length": { "value": 50, "unit": "INCHES" }, "width": { "value": 20, "unit": "INCHES" }, "height": { "value": 7, "unit": "INCHES" }, "weight": { "value": 1.5, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Mouse-W-016",
+    "title": "Wireless Mouse",
+    "dimensions": {
+      "item": { "length": { "value": 10, "unit": "INCHES" }, "width": { "value": 6, "unit": "INCHES" }, "height": { "value": 4, "unit": "INCHES" }, "weight": { "value": 0.1, "unit": "POUNDS" } },
+      "package": { "length": { "value": 12, "unit": "INCHES" }, "width": { "value": 8, "unit": "INCHES" }, "height": { "value": 6, "unit": "INCHES" }, "weight": { "value": 0.2, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Monitor-27-017",
+    "title": "27-inch Monitor",
+    "dimensions": {
+      "item": { "length": { "value": 61, "unit": "INCHES" }, "width": { "value": 36, "unit": "INCHES" }, "height": { "value": 5, "unit": "INCHES" }, "weight": { "value": 7, "unit": "POUNDS" } },
+      "package": { "length": { "value": 70, "unit": "INCHES" }, "width": { "value": 45, "unit": "INCHES" }, "height": { "value": 15, "unit": "INCHES" }, "weight": { "value": 9, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Desk-L-018",
+    "title": "Office Desk",
+    "dimensions": {
+      "item": { "length": { "value": 120, "unit": "INCHES" }, "width": { "value": 60, "unit": "INCHES" }, "height": { "value": 75, "unit": "INCHES" }, "weight": { "value": 25, "unit": "POUNDS" } },
+      "package": { "length": { "value": 130, "unit": "INCHES" }, "width": { "value": 70, "unit": "INCHES" }, "height": { "value": 20, "unit": "INCHES" }, "weight": { "value": 30, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Chair-O-019",
+    "title": "Office Chair",
+    "dimensions": {
+      "item": { "length": { "value": 60, "unit": "INCHES" }, "width": { "value": 60, "unit": "INCHES" }, "height": { "value": 110, "unit": "INCHES" }, "weight": { "value": 15, "unit": "POUNDS" } },
+      "package": { "length": { "value": 70, "unit": "INCHES" }, "width": { "value": 70, "unit": "INCHES" }, "height": { "value": 50, "unit": "INCHES" }, "weight": { "value": 18, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Lamp-D-020",
+    "title": "Desk Lamp",
+    "dimensions": {
+      "item": { "length": { "value": 15, "unit": "INCHES" }, "width": { "value": 15, "unit": "INCHES" }, "height": { "value": 40, "unit": "INCHES" }, "weight": { "value": 1, "unit": "POUNDS" } },
+      "package": { "length": { "value": 20, "unit": "INCHES" }, "width": { "value": 20, "unit": "INCHES" }, "height": { "value": 25, "unit": "INCHES" }, "weight": { "value": 1.5, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Bottle-W-021",
+    "title": "Water Bottle",
+    "dimensions": {
+      "item": { "length": { "value": 7, "unit": "INCHES" }, "width": { "value": 7, "unit": "INCHES" }, "height": { "value": 25, "unit": "INCHES" }, "weight": { "value": 0.15, "unit": "POUNDS" } },
+      "package": { "length": { "value": 8, "unit": "INCHES" }, "width": { "value": 8, "unit": "INCHES" }, "height": { "value": 26, "unit": "INCHES" }, "weight": { "value": 0.2, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Backpack-L-022",
+    "title": "Laptop Backpack",
+    "dimensions": {
+      "item": { "length": { "value": 45, "unit": "INCHES" }, "width": { "value": 30, "unit": "INCHES" }, "height": { "value": 15, "unit": "INCHES" }, "weight": { "value": 1, "unit": "POUNDS" } },
+      "package": { "length": { "value": 46, "unit": "INCHES" }, "width": { "value": 31, "unit": "INCHES" }, "height": { "value": 16, "unit": "INCHES" }, "weight": { "value": 1.2, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Notebook-A4-023",
+    "title": "A4 Notebook",
+    "dimensions": {
+      "item": { "length": { "value": 29.7, "unit": "INCHES" }, "width": { "value": 21, "unit": "INCHES" }, "height": { "value": 1, "unit": "INCHES" }, "weight": { "value": 0.5, "unit": "POUNDS" } },
+      "package": { "length": { "value": 30, "unit": "INCHES" }, "width": { "value": 22, "unit": "INCHES" }, "height": { "value": 2, "unit": "INCHES" }, "weight": { "value": 0.6, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Pen-B-024",
+    "title": "Ballpoint Pen",
+    "dimensions": {
+      "item": { "length": { "value": 14, "unit": "INCHES" }, "width": { "value": 1, "unit": "INCHES" }, "height": { "value": 1, "unit": "INCHES" }, "weight": { "value": 0.01, "unit": "POUNDS" } },
+      "package": { "length": { "value": 15, "unit": "INCHES" }, "width": { "value": 2, "unit": "INCHES" }, "height": { "value": 2, "unit": "INCHES" }, "weight": { "value": 0.02, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Pencil-H-025",
+    "title": "HB Pencil",
+    "dimensions": {
+      "item": { "length": { "value": 17, "unit": "INCHES" }, "width": { "value": 0.7, "unit": "INCHES" }, "height": { "value": 0.7, "unit": "INCHES" }, "weight": { "value": 0.005, "unit": "POUNDS" } },
+      "package": { "length": { "value": 18, "unit": "INCHES" }, "width": { "value": 1, "unit": "INCHES" }, "height": { "value": 1, "unit": "INCHES" }, "weight": { "value": 0.01, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Eraser-R-026",
+    "title": "Rubber Eraser",
+    "dimensions": {
+      "item": { "length": { "value": 4, "unit": "INCHES" }, "width": { "value": 2, "unit": "INCHES" }, "height": { "value": 1, "unit": "INCHES" }, "weight": { "value": 0.02, "unit": "POUNDS" } },
+      "package": { "length": { "value": 5, "unit": "INCHES" }, "width": { "value": 3, "unit": "INCHES" }, "height": { "value": 2, "unit": "INCHES" }, "weight": { "value": 0.03, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Ruler-30-027",
+    "title": "30cm Ruler",
+    "dimensions": {
+      "item": { "length": { "value": 31, "unit": "INCHES" }, "width": { "value": 3, "unit": "INCHES" }, "height": { "value": 0.2, "unit": "INCHES" }, "weight": { "value": 0.05, "unit": "POUNDS" } },
+      "package": { "length": { "value": 32, "unit": "INCHES" }, "width": { "value": 4, "unit": "INCHES" }, "height": { "value": 1, "unit": "INCHES" }, "weight": { "value": 0.06, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Stapler-D-028",
+    "title": "Desk Stapler",
+    "dimensions": {
+      "item": { "length": { "value": 15, "unit": "INCHES" }, "width": { "value": 4, "unit": "INCHES" }, "height": { "value": 6, "unit": "INCHES" }, "weight": { "value": 0.3, "unit": "POUNDS" } },
+      "package": { "length": { "value": 16, "unit": "INCHES" }, "width": { "value": 5, "unit": "INCHES" }, "height": { "value": 7, "unit": "INCHES" }, "weight": { "value": 0.4, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Scissors-O-029",
+    "title": "Office Scissors",
+    "dimensions": {
+      "item": { "length": { "value": 20, "unit": "INCHES" }, "width": { "value": 8, "unit": "INCHES" }, "height": { "value": 1, "unit": "INCHES" }, "weight": { "value": 0.1, "unit": "POUNDS" } },
+      "package": { "length": { "value": 21, "unit": "INCHES" }, "width": { "value": 9, "unit": "INCHES" }, "height": { "value": 2, "unit": "INCHES" }, "weight": { "value": 0.15, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Tape-D-030",
+    "title": "Tape Dispenser",
+    "dimensions": {
+      "item": { "length": { "value": 12, "unit": "INCHES" }, "width": { "value": 5, "unit": "INCHES" }, "height": { "value": 7, "unit": "INCHES" }, "weight": { "value": 0.5, "unit": "POUNDS" } },
+      "package": { "length": { "value": 13, "unit": "INCHES" }, "width": { "value": 6, "unit": "INCHES" }, "height": { "value": 8, "unit": "INCHES" }, "weight": { "value": 0.6, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "USB-C-31",
+    "title": "USB-C Cable",
+    "dimensions": {
+      "item": { "length": { "value": 100, "unit": "INCHES" }, "width": { "value": 1, "unit": "INCHES" }, "height": { "value": 0.5, "unit": "INCHES" }, "weight": { "value": 0.05, "unit": "POUNDS" } },
+      "package": { "length": { "value": 10, "unit": "INCHES" }, "width": { "value": 5, "unit": "INCHES" }, "height": { "value": 2, "unit": "INCHES" }, "weight": { "value": 0.1, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "HDMI-C-32",
+    "title": "HDMI Cable",
+    "dimensions": {
+      "item": { "length": { "value": 200, "unit": "INCHES" }, "width": { "value": 2, "unit": "INCHES" }, "height": { "value": 1, "unit": "INCHES" }, "weight": { "value": 0.1, "unit": "POUNDS" } },
+      "package": { "length": { "value": 15, "unit": "INCHES" }, "width": { "value": 10, "unit": "INCHES" }, "height": { "value": 3, "unit": "INCHES" }, "weight": { "value": 0.15, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "PowerBank-10k-33",
+    "title": "10000mAh Power Bank",
+    "dimensions": {
+      "item": { "length": { "value": 14, "unit": "INCHES" }, "width": { "value": 7, "unit": "INCHES" }, "height": { "value": 1.5, "unit": "INCHES" }, "weight": { "value": 0.22, "unit": "POUNDS" } },
+      "package": { "length": { "value": 16, "unit": "INCHES" }, "width": { "value": 9, "unit": "INCHES" }, "height": { "value": 3, "unit": "INCHES" }, "weight": { "value": 0.3, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": true, "unNumber": "UN3481" } }
+  },
+  {
+    "sku": "Headphones-W-34",
+    "title": "Wireless Headphones",
+    "dimensions": {
+      "item": { "length": { "value": 20, "unit": "INCHES" }, "width": { "value": 18, "unit": "INCHES" }, "height": { "value": 8, "unit": "INCHES" }, "weight": { "value": 0.25, "unit": "POUNDS" } },
+      "package": { "length": { "value": 22, "unit": "INCHES" }, "width": { "value": 20, "unit": "INCHES" }, "height": { "value": 10, "unit": "INCHES" }, "weight": { "value": 0.4, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Speaker-B-35",
+    "title": "Bluetooth Speaker",
+    "dimensions": {
+      "item": { "length": { "value": 15, "unit": "INCHES" }, "width": { "value": 8, "unit": "INCHES" }, "height": { "value": 8, "unit": "INCHES" }, "weight": { "value": 0.5, "unit": "POUNDS" } },
+      "package": { "length": { "value": 17, "unit": "INCHES" }, "width": { "value": 10, "unit": "INCHES" }, "height": { "value": 10, "unit": "INCHES" }, "weight": { "value": 0.7, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Camera-D-36",
+    "title": "Digital Camera",
+    "dimensions": {
+      "item": { "length": { "value": 12, "unit": "INCHES" }, "width": { "value": 8, "unit": "INCHES" }, "height": { "value": 7, "unit": "INCHES" }, "weight": { "value": 0.4, "unit": "POUNDS" } },
+      "package": { "length": { "value": 20, "unit": "INCHES" }, "width": { "value": 15, "unit": "INCHES" }, "height": { "value": 12, "unit": "INCHES" }, "weight": { "value": 0.8, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Tripod-C-37",
+    "title": "Camera Tripod",
+    "dimensions": {
+      "item": { "length": { "value": 50, "unit": "INCHES" }, "width": { "value": 10, "unit": "INCHES" }, "height": { "value": 10, "unit": "INCHES" }, "weight": { "value": 1.5, "unit": "POUNDS" } },
+      "package": { "length": { "value": 55, "unit": "INCHES" }, "width": { "value": 12, "unit": "INCHES" }, "height": { "value": 12, "unit": "INCHES" }, "weight": { "value": 1.8, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "SDCard-64-38",
+    "title": "64GB SD Card",
+    "dimensions": {
+      "item": { "length": { "value": 3.2, "unit": "INCHES" }, "width": { "value": 2.4, "unit": "INCHES" }, "height": { "value": 0.2, "unit": "INCHES" }, "weight": { "value": 0.002, "unit": "POUNDS" } },
+      "package": { "length": { "value": 10, "unit": "INCHES" }, "width": { "value": 8, "unit": "INCHES" }, "height": { "value": 1, "unit": "INCHES" }, "weight": { "value": 0.01, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "ExtHDD-1T-39",
+    "title": "1TB External HDD",
+    "dimensions": {
+      "item": { "length": { "value": 11, "unit": "INCHES" }, "width": { "value": 8, "unit": "INCHES" }, "height": { "value": 1.5, "unit": "INCHES" }, "weight": { "value": 0.15, "unit": "POUNDS" } },
+      "package": { "length": { "value": 15, "unit": "INCHES" }, "width": { "value": 12, "unit": "INCHES" }, "height": { "value": 4, "unit": "INCHES" }, "weight": { "value": 0.25, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Router-W-40",
+    "title": "Wireless Router",
+    "dimensions": {
+      "item": { "length": { "value": 25, "unit": "INCHES" }, "width": { "value": 18, "unit": "INCHES" }, "height": { "value": 5, "unit": "INCHES" }, "weight": { "value": 0.6, "unit": "POUNDS" } },
+      "package": { "length": { "value": 30, "unit": "INCHES" }, "width": { "value": 22, "unit": "INCHES" }, "height": { "value": 8, "unit": "INCHES" }, "weight": { "value": 1, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "CoffeeMaker-D-41",
+    "title": "Drip Coffee Maker",
+    "dimensions": {
+      "item": { "length": { "value": 30, "unit": "INCHES" }, "width": { "value": 20, "unit": "INCHES" }, "height": { "value": 35, "unit": "INCHES" }, "weight": { "value": 3, "unit": "POUNDS" } },
+      "package": { "length": { "value": 35, "unit": "INCHES" }, "width": { "value": 25, "unit": "INCHES" }, "height": { "value": 40, "unit": "INCHES" }, "weight": { "value": 4, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Blender-C-42",
+    "title": "Countertop Blender",
+    "dimensions": {
+      "item": { "length": { "value": 20, "unit": "INCHES" }, "width": { "value": 20, "unit": "INCHES" }, "height": { "value": 40, "unit": "INCHES" }, "weight": { "value": 4, "unit": "POUNDS" } },
+      "package": { "length": { "value": 25, "unit": "INCHES" }, "width": { "value": 25, "unit": "INCHES" }, "height": { "value": 45, "unit": "INCHES" }, "weight": { "value": 5, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Kettle-E-43",
+    "title": "Electric Kettle",
+    "dimensions": {
+      "item": { "length": { "value": 22, "unit": "INCHES" }, "width": { "value": 15, "unit": "INCHES" }, "height": { "value": 25, "unit": "INCHES" }, "weight": { "value": 1.2, "unit": "POUNDS" } },
+      "package": { "length": { "value": 25, "unit": "INCHES" }, "width": { "value": 18, "unit": "INCHES" }, "height": { "value": 28, "unit": "INCHES" }, "weight": { "value": 1.5, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Pan-F-44",
+    "title": "Frying Pan",
+    "dimensions": {
+      "item": { "length": { "value": 45, "unit": "INCHES" }, "width": { "value": 28, "unit": "INCHES" }, "height": { "value": 5, "unit": "INCHES" }, "weight": { "value": 1.5, "unit": "POUNDS" } },
+      "package": { "length": { "value": 47, "unit": "INCHES" }, "width": { "value": 30, "unit": "INCHES" }, "height": { "value": 7, "unit": "INCHES" }, "weight": { "value": 1.8, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Pot-S-45",
+    "title": "Stock Pot",
+    "dimensions": {
+      "item": { "length": { "value": 30, "unit": "INCHES" }, "width": { "value": 30, "unit": "INCHES" }, "height": { "value": 25, "unit": "INCHES" }, "weight": { "value": 3, "unit": "POUNDS" } },
+      "package": { "length": { "value": 32, "unit": "INCHES" }, "width": { "value": 32, "unit": "INCHES" }, "height": { "value": 27, "unit": "INCHES" }, "weight": { "value": 3.5, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Knife-C-46",
+    "title": "Chef's Knife",
+    "dimensions": {
+      "item": { "length": { "value": 33, "unit": "INCHES" }, "width": { "value": 5, "unit": "INCHES" }, "height": { "value": 2, "unit": "INCHES" }, "weight": { "value": 0.2, "unit": "POUNDS" } },
+      "package": { "length": { "value": 35, "unit": "INCHES" }, "width": { "value": 7, "unit": "INCHES" }, "height": { "value": 3, "unit": "INCHES" }, "weight": { "value": 0.3, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Board-C-47",
+    "title": "Cutting Board",
+    "dimensions": {
+      "item": { "length": { "value": 35, "unit": "INCHES" }, "width": { "value": 25, "unit": "INCHES" }, "height": { "value": 2, "unit": "INCHES" }, "weight": { "value": 1, "unit": "POUNDS" } },
+      "package": { "length": { "value": 36, "unit": "INCHES" }, "width": { "value": 26, "unit": "INCHES" }, "height": { "value": 3, "unit": "INCHES" }, "weight": { "value": 1.2, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Plate-D-48",
+    "title": "Dinner Plate",
+    "dimensions": {
+      "item": { "length": { "value": 27, "unit": "INCHES" }, "width": { "value": 27, "unit": "INCHES" }, "height": { "value": 3, "unit": "INCHES" }, "weight": { "value": 0.7, "unit": "POUNDS" } },
+      "package": { "length": { "value": 28, "unit": "INCHES" }, "width": { "value": 28, "unit": "INCHES" }, "height": { "value": 4, "unit": "INCHES" }, "weight": { "value": 0.8, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Bowl-S-49",
+    "title": "Soup Bowl",
+    "dimensions": {
+      "item": { "length": { "value": 15, "unit": "INCHES" }, "width": { "value": 15, "unit": "INCHES" }, "height": { "value": 8, "unit": "INCHES" }, "weight": { "value": 0.5, "unit": "POUNDS" } },
+      "package": { "length": { "value": 16, "unit": "INCHES" }, "width": { "value": 16, "unit": "INCHES" }, "height": { "value": 9, "unit": "INCHES" }, "weight": { "value": 0.6, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  },
+  {
+    "sku": "Glass-W-50",
+    "title": "Water Glass",
+    "dimensions": {
+      "item": { "length": { "value": 8, "unit": "INCHES" }, "width": { "value": 8, "unit": "INCHES" }, "height": { "value": 15, "unit": "INCHES" }, "weight": { "value": 0.3, "unit": "POUNDS" } },
+      "package": { "length": { "value": 9, "unit": "INCHES" }, "width": { "value": 9, "unit": "INCHES" }, "height": { "value": 16, "unit": "INCHES" }, "weight": { "value": 0.4, "unit": "POUNDS" } }
+    },
+    "attributes": { "hazmatInfo": { "isHazmat": false } }
+  }
+]
