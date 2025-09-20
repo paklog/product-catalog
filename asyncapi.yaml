@@ -1,8 +1,8 @@
 asyncapi: 3.0.0
 info:
-  title: Product Catalog Service API
-  version: 1.0.0
-  description: |
+  title: Product Catalog Service Events
+  version: 1.1.0
+  description: |-
     The Product Catalog Service manages product information and publishes domain events
     when products are created, updated, or deleted. This service follows Domain-Driven Design
     principles and uses event-driven architecture.
@@ -15,13 +15,6 @@ info:
 defaultContentType: application/json
 
 servers:
-  production:
-    host: localhost:9092
-    protocol: kafka
-    description: Kafka broker for production environment
-    tags:
-      - name: env:production
-        description: Production environment
   development:
     host: localhost:9092
     protocol: kafka
@@ -29,11 +22,18 @@ servers:
     tags:
       - name: env:development
         description: Development environment
+  production:
+    host: localhost:9092
+    protocol: kafka
+    description: Kafka broker for production environment
+    tags:
+      - name: env:production
+        description: Production environment
 
 channels:
   product.events:
     address: product.events
-    description: Channel for all product-related domain events
+    description: Channel for all product-related domain events emitted by the service
     messages:
       ProductCreatedEvent:
         $ref: '#/components/messages/ProductCreatedEvent'
@@ -89,16 +89,15 @@ components:
       payload:
         $ref: '#/components/schemas/ProductCreatedEvent'
       examples:
-        - name: Basic product creation
-          summary: Example of a basic product created event
+        - name: product-created
+          summary: Example of a product created event
           payload:
-            eventId: "550e8400-e29b-41d4-a716-446655440000"
-            occurredOn: "2024-01-15T10:30:00.000Z"
-            eventType: "ProductCreated"
+            event_id: 550e8400-e29b-41d4-a716-446655440000
+            occurred_on: '2024-01-15T10:30:00Z'
+            event_type: ProductCreated
             sku:
-              value: "LAPTOP-001"
-            title: "Gaming Laptop Pro"
-
+              value: LAPTOP-001
+            title: Gaming Laptop Pro
     ProductUpdatedEvent:
       name: ProductUpdatedEvent
       title: Product Updated Event
@@ -107,16 +106,15 @@ components:
       payload:
         $ref: '#/components/schemas/ProductUpdatedEvent'
       examples:
-        - name: Product title update
+        - name: product-updated
           summary: Example of a product updated event
           payload:
-            eventId: "550e8400-e29b-41d4-a716-446655440001"
-            occurredOn: "2024-01-15T11:30:00.000Z"
-            eventType: "ProductUpdated"
+            event_id: 550e8400-e29b-41d4-a716-446655440001
+            occurred_on: '2024-01-15T11:30:00Z'
+            event_type: ProductUpdated
             sku:
-              value: "LAPTOP-001"
-            title: "Gaming Laptop Pro Max"
-
+              value: LAPTOP-001
+            title: Gaming Laptop Pro Max
     ProductDeletedEvent:
       name: ProductDeletedEvent
       title: Product Deleted Event
@@ -125,106 +123,75 @@ components:
       payload:
         $ref: '#/components/schemas/ProductDeletedEvent'
       examples:
-        - name: Product deletion
+        - name: product-deleted
           summary: Example of a product deleted event
           payload:
-            eventId: "550e8400-e29b-41d4-a716-446655440002"
-            occurredOn: "2024-01-15T12:30:00.000Z"
-            eventType: "ProductDeleted"
+            event_id: 550e8400-e29b-41d4-a716-446655440002
+            occurred_on: '2024-01-15T12:30:00Z'
+            event_type: ProductDeleted
             sku:
-              value: "LAPTOP-001"
+              value: LAPTOP-001
 
   schemas:
+    DomainEvent:
+      type: object
+      description: Base contract shared by all domain events emitted by the service
+      required:
+        - event_id
+        - occurred_on
+        - event_type
+        - sku
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the event instance
+        occurred_on:
+          type: string
+          format: date-time
+          description: Timestamp when the event occurred (UTC)
+        event_type:
+          type: string
+          description: Type of the domain event
+        sku:
+          $ref: '#/components/schemas/SKU'
     ProductCreatedEvent:
-      type: object
-      description: Domain event representing a product creation
-      required:
-        - eventId
-        - occurredOn
-        - eventType
-        - sku
-        - title
-      properties:
-        eventId:
-          type: string
-          description: Unique identifier for the event
-          format: uuid
-          example: "550e8400-e29b-41d4-a716-446655440000"
-        occurredOn:
-          type: string
-          description: Timestamp when the event occurred
-          format: date-time
-          example: "2024-01-15T10:30:00.000Z"
-        eventType:
-          type: string
-          enum: ["ProductCreated"]
-          description: Type of the domain event
-        sku:
-          $ref: '#/components/schemas/SKU'
-        title:
-          type: string
-          description: Product title
-          minLength: 1
-          example: "Gaming Laptop Pro"
-
+      allOf:
+        - $ref: '#/components/schemas/DomainEvent'
+        - type: object
+          required:
+            - title
+          properties:
+            event_type:
+              type: string
+              enum:
+                - ProductCreated
+            title:
+              type: string
+              description: Product title at the time of creation
     ProductUpdatedEvent:
-      type: object
-      description: Domain event representing a product update
-      required:
-        - eventId
-        - occurredOn
-        - eventType
-        - sku
-        - title
-      properties:
-        eventId:
-          type: string
-          description: Unique identifier for the event
-          format: uuid
-          example: "550e8400-e29b-41d4-a716-446655440001"
-        occurredOn:
-          type: string
-          description: Timestamp when the event occurred
-          format: date-time
-          example: "2024-01-15T11:30:00.000Z"
-        eventType:
-          type: string
-          enum: ["ProductUpdated"]
-          description: Type of the domain event
-        sku:
-          $ref: '#/components/schemas/SKU'
-        title:
-          type: string
-          description: Updated product title
-          minLength: 1
-          example: "Gaming Laptop Pro Max"
-
+      allOf:
+        - $ref: '#/components/schemas/DomainEvent'
+        - type: object
+          required:
+            - title
+          properties:
+            event_type:
+              type: string
+              enum:
+                - ProductUpdated
+            title:
+              type: string
+              description: Updated product title
     ProductDeletedEvent:
-      type: object
-      description: Domain event representing a product deletion
-      required:
-        - eventId
-        - occurredOn
-        - eventType
-        - sku
-      properties:
-        eventId:
-          type: string
-          description: Unique identifier for the event
-          format: uuid
-          example: "550e8400-e29b-41d4-a716-446655440002"
-        occurredOn:
-          type: string
-          description: Timestamp when the event occurred
-          format: date-time
-          example: "2024-01-15T12:30:00.000Z"
-        eventType:
-          type: string
-          enum: ["ProductDeleted"]
-          description: Type of the domain event
-        sku:
-          $ref: '#/components/schemas/SKU'
-
+      allOf:
+        - $ref: '#/components/schemas/DomainEvent'
+        - type: object
+          properties:
+            event_type:
+              type: string
+              enum:
+                - ProductDeleted
     SKU:
       type: object
       description: Stock Keeping Unit - unique product identifier
@@ -233,170 +200,8 @@ components:
       properties:
         value:
           type: string
-          description: The SKU value
+          description: Seller-provided SKU value
           minLength: 1
-          pattern: "^[A-Z0-9\\-_]+$"
-          example: "LAPTOP-001"
-
-    Product:
-      type: object
-      description: Complete product information (for reference - not used in events)
-      required:
-        - sku
-        - title
-        - createdAt
-        - updatedAt
-        - version
-      properties:
-        sku:
-          $ref: '#/components/schemas/SKU'
-        title:
-          type: string
-          description: Product title
-          minLength: 1
-          example: "Gaming Laptop Pro"
-        dimensions:
-          $ref: '#/components/schemas/Dimensions'
-        attributes:
-          $ref: '#/components/schemas/Attributes'
-        createdAt:
-          type: string
-          format: date-time
-          description: Timestamp when the product was created
-        updatedAt:
-          type: string
-          format: date-time
-          description: Timestamp when the product was last updated
-        version:
-          type: integer
-          description: Version number for optimistic locking
-          format: int64
-          minimum: 0
-
-    Dimensions:
-      type: object
-      description: Product dimensions including item and package measurements
-      required:
-        - item
-        - packageDimensions
-      properties:
-        item:
-          $ref: '#/components/schemas/DimensionSet'
-        packageDimensions:
-          $ref: '#/components/schemas/DimensionSet'
-
-    DimensionSet:
-      type: object
-      description: Set of dimensional measurements
-      required:
-        - length
-        - width
-        - height
-        - weight
-      properties:
-        length:
-          $ref: '#/components/schemas/DimensionMeasurement'
-        width:
-          $ref: '#/components/schemas/DimensionMeasurement'
-        height:
-          $ref: '#/components/schemas/DimensionMeasurement'
-        weight:
-          $ref: '#/components/schemas/WeightMeasurement'
-
-    DimensionMeasurement:
-      type: object
-      description: Linear dimension measurement
-      required:
-        - value
-        - unit
-      properties:
-        value:
-          type: number
-          description: Numeric value of the measurement
-          minimum: 0
-          exclusiveMinimum: true
-          example: 15.5
-        unit:
-          type: string
-          enum: ["INCHES", "CENTIMETERS", "MILLIMETERS", "FEET", "METERS"]
-          description: Unit of measurement for dimensions
-          example: "INCHES"
-
-    WeightMeasurement:
-      type: object
-      description: Weight measurement
-      required:
-        - value
-        - unit
-      properties:
-        value:
-          type: number
-          description: Numeric value of the weight
-          minimum: 0
-          exclusiveMinimum: true
-          example: 2.5
-        unit:
-          type: string
-          enum: ["POUNDS", "KILOGRAMS", "GRAMS", "OUNCES"]
-          description: Unit of measurement for weight
-          example: "POUNDS"
-
-    Attributes:
-      type: object
-      description: Product attributes including hazmat information
-      required:
-        - hazmatInfo
-      properties:
-        hazmatInfo:
-          $ref: '#/components/schemas/HazmatInfo'
-
-    HazmatInfo:
-      type: object
-      description: Hazardous material information
-      required:
-        - isHazmat
-      properties:
-        isHazmat:
-          type: boolean
-          description: Whether the product is classified as hazardous material
-          example: false
-        unNumber:
-          type: string
-          description: UN number for hazardous materials (required when isHazmat is true)
-          pattern: "^UN[0-9]{4}$"
-          example: "UN1234"
-
-  messageTraits:
-    domainEvent:
-      headers:
-        type: object
-        properties:
-          kafka_messageKey:
-            type: string
-            description: Kafka message key (typically the event ID)
-        required:
-          - kafka_messageKey
-      payload:
-        type: object
-        required:
-          - eventId
-          - occurredOn
-          - eventType
-        properties:
-          eventId:
-            type: string
-            format: uuid
-            description: Unique identifier for the event
-          occurredOn:
-            type: string
-            format: date-time
-            description: Timestamp when the event occurred
-          eventType:
-            type: string
-            description: Type of the domain event
-
 tags:
   - name: Product Events
     description: Events related to product lifecycle management
-  - name: Domain Events
-    description: Events following Domain-Driven Design patterns
