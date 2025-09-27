@@ -25,7 +25,7 @@ public class OpenApiConfig {
                                 .email("product-catalog@paklog.com")))
                 .servers(List.of(
                         new Server()
-                                .url("http://localhost:8080")
+                                .url("http://localhost:8082")
                                 .description("Development server"),
                         new Server()
                                 .url("https://api.paklog.com/v1")

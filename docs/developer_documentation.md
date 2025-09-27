@@ -224,7 +224,7 @@ To create a new product, send a `POST` request to the `/products` endpoint with 
 
 ```bash
 curl -X POST \
-  http://localhost:8080/products \
+  http://localhost:8082/products \
   -H 'Content-Type: application/json' \
   -d '{
     "sku": "NEW-WIDGET-001",
@@ -261,13 +261,13 @@ services:
   product-catalog:
     image: paklog/product-catalog:1.0.0-SNAPSHOT
     ports:
-      - "8080:8080"
+      - "8082:8082"
     environment:
       - SPRING_DATA_MONGODB_HOST=mongodb
       - SPRING_DATA_MONGODB_PORT=27017
       - SPRING_DATA_MONGODB_DATABASE=productcatalog
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - SERVER_PORT=8080
+      - SERVER_PORT=8082
     depends_on:
       - mongodb
       - kafka

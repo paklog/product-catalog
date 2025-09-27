@@ -56,7 +56,7 @@ logging:
     console: "%d{ISO8601} [%thread] %-5level [%logger{36}] - %msg%n"
 
 server:
-  port: 8080
+  port: 8082
   error:
     include-message: always
     include-binding-errors: always
@@ -80,6 +80,6 @@ product-catalog:
     max-limit: 100
     default-offset: 0
   cors:
-    allowed-origins: "http://localhost:3000,http://localhost:8080"
+    allowed-origins: "http://localhost:3000,http://localhost:8082"
     allowed-methods: "GET,POST,PUT,PATCH,DELETE,OPTIONS"
     allowed-headers: "*"

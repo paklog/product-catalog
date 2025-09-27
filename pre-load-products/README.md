@@ -22,7 +22,7 @@ newman run product-catalog.postman_collection.json -e .. -d products.json
 
 ### Environment Variables
 
-The `BASE_URL` environment variable should be set to the base URL of the API. By default, it is set to `http://localhost:8080` in the collection.
+The `BASE_URL` environment variable should be set to the base URL of the API. By default, it is set to `http://localhost:8082` in the collection.
 
 You can override this by creating a Postman environment file (e.g., `dev.postman_environment.json`) and passing it to Newman with the `-e` flag:
 
@@ -33,7 +33,7 @@ You can override this by creating a Postman environment file (e.g., `dev.postman
 	"values": [
 		{
 			"key": "BASE_URL",
-			"value": "http://localhost:8080",
+			"value": "http://localhost:8082",
 			"enabled": true
 		}
 	],

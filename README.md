@@ -60,16 +60,16 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 Once running, access the interactive API documentation at:
 
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **OpenAPI JSON**: http://localhost:8080/api-docs
+- **Swagger UI**: http://localhost:8082/swagger-ui.html
+- **OpenAPI JSON**: http://localhost:8082/api-docs
 
 ## Monitoring & Management
 
-- **Health Checks**: http://localhost:8080/actuator/health
-- **Metrics**: http://localhost:8080/actuator/metrics  
-- **Prometheus**: http://localhost:8080/actuator/prometheus
+- **Health Checks**: http://localhost:8082/actuator/health
+- **Metrics**: http://localhost:8082/actuator/metrics  
+- **Prometheus**: http://localhost:8082/actuator/prometheus
 - **Kafka UI**: http://localhost:8081
-- **MongoDB Express**: http://localhost:8082
+- **MongoDB Express**: http://localhost:8083
 
 ## Testing
 
@@ -92,7 +92,7 @@ mvn test -Dtest="ArchitectureTest"
 ### Create a Product
 
 ```bash
-curl -X POST http://localhost:8080/products \
+curl -X POST http://localhost:8082/products \
   -H "Content-Type: application/json" \
   -d '{
     "sku": "WIDGET-123",
@@ -122,13 +122,13 @@ curl -X POST http://localhost:8080/products \
 ### Get a Product
 
 ```bash
-curl http://localhost:8080/products/WIDGET-123
+curl http://localhost:8082/products/WIDGET-123
 ```
 
 ### List Products
 
 ```bash
-curl "http://localhost:8080/products?offset=0&limit=20"
+curl "http://localhost:8082/products?offset=0&limit=20"
 ```
 
 ## Domain Model

@@ -55,7 +55,7 @@ The test scripts are configured using the `options` object at the top of each fi
 
 ### Environment Variables
 
-The base URL of the API can be configured using the `BASE_URL` environment variable. If this variable is not set, the tests will default to `http://localhost:8080`.
+The base URL of the API can be configured using the `BASE_URL` environment variable. If this variable is not set, the tests will default to `http://localhost:8082`.
 
 Example:
 
