@@ -42,8 +42,8 @@ const data = new SharedArray('some data', function () {
                 },
             },
             attributes: {
-                hazmatInfo: {
-                    isHazmat: false,
+                hazmat_info: {
+                    is_hazmat: false,
                 },
             },
         },
@@ -86,7 +86,13 @@ export default function () {
   sleep(1);
 
   // Patch the product
-  let patchResponse = http.patch(`${BASE_URL}/products/${product.sku}`, JSON.stringify({ title: 'Patched Test Product' }), {
+  const patchPayload = {
+    sku: product.sku,
+    title: 'Patched Test Product',
+    dimensions: product.dimensions,
+    attributes: product.attributes,
+  };
+  let patchResponse = http.patch(`${BASE_URL}/products/${product.sku}`, JSON.stringify(patchPayload), {
     headers: { 'Content-Type': 'application/json' },
   });
   check(patchResponse, { 'product patched': (r) => r.status === 200 });

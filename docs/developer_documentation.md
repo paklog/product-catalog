@@ -70,9 +70,9 @@ The API is defined using OpenAPI 3.0.3 and can be accessed via the `/v3/api-docs
               }
             },
             "attributes": {
-              "hazmatInfo": {
-                "isHazmat": true,
-                "unNumber": "UN1950"
+              "hazmat_info": {
+                "is_hazmat": true,
+                "un_number": "UN1950"
               }
             }
           }
@@ -186,14 +186,14 @@ The API is defined using OpenAPI 3.0.3 and can be accessed via the `/v3/api-docs
 - **Type:** `object`
 - **Description:** A Value Object for storing additional product characteristics and compliance data.
 - **Properties:**
-    - `hazmatInfo` (`HazmatInfo` object)
+    - `hazmat_info` (`HazmatInfo` object)
 
 #### `HazmatInfo`
 - **Type:** `object`
 - **Description:** Information related to hazardous material classification.
 - **Properties:**
-    - `isHazmat` (boolean): Example: `true`
-    - `unNumber` (string): The UN number for the hazardous material, if applicable. Example: `"UN1950"`
+    - `is_hazmat` (boolean): Example: `true`
+    - `un_number` (string): The UN number for the hazardous material, if applicable. Example: `"UN1950"`
 
 #### `Error`
 - **Type:** `object`
@@ -244,8 +244,8 @@ curl -X POST \
       }
     },
     "attributes": {
-      "hazmatInfo": {
-        "isHazmat": false
+      "hazmat_info": {
+        "is_hazmat": false
       }
     }
   }'

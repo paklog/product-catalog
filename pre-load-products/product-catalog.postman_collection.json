@@ -1,49 +1,49 @@
 {
-	"info": {
-		"_postman_id": "a8a6b3a9-f5b3-4b0e-8b7a-2e4b6f6b1b1b",
-		"name": "Product Catalog",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "Create Product",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 201\", function () {",
-							"    pm.response.to.have.status(201);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"sku\": \"{{sku}}\",\n    \"title\": \"{{title}}\",\n    \"dimensions\": {\n        \"item\": {\n            \"length\": {\n                \"value\": {{item_length_value}},\n                \"unit\": \"{{item_length_unit}}\"\n            },\n            \"width\": {\n                \"value\": {{item_width_value}},\n                \"unit\": \"{{item_width_unit}}\"\n            },\n            \"height\": {\n                \"value\": {{item_height_value}},\n                \"unit\": \"{{item_height_unit}}\"\n            },\n            \"weight\": {\n                \"value\": {{item_weight_value}},\n                \"unit\": \"{{item_weight_unit}}\"\n            }\n        },\n        \"package\": {\n            \"length\": {\n                \"value\": {{package_length_value}},\n                \"unit\": \"{{package_length_unit}}\"\n            },\n            \"width\": {\n                \"value\": {{package_width_value}},\n                \"unit\": \"{{package_width_unit}}\"\n            },\n            \"height\": {\n                \"value\": {{package_height_value}},\n                \"unit\": \"{{package_height_unit}}\"\n            },\n            \"weight\": {\n                \"value\": {{package_weight_value}},\n                \"unit\": \"{{package_weight_unit}}\"\n            }\n        }\n    },\n    \"attributes\": {\n        \"hazmatInfo\": {\n            \"isHazmat\": {{is_hazmat}},\n            \"unNumber\": \"{{un_number}}\"\n        }\n    }\n}"
-				},
-				"url": {
-					"raw": "{{BASE_URL}}/products",
-					"host": [
-						"{{BASE_URL}}"
-					],
-					"path": [
-						"products"
-					]
-				}
-			},
-			"response": []
-		}
-	]
+  "info": {
+    "_postman_id": "a8a6b3a9-f5b3-4b0e-8b7a-2e4b6f6b1b1b",
+    "name": "Product Catalog",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Product",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"sku\": \"{{sku}}\",\n    \"title\": \"{{title}}\",\n    \"dimensions\": {\n        \"item\": {\n            \"length\": {\n                \"value\": {{dimensions.item.length.value}},\n                \"unit\": \"{{dimensions.item.length.unit}}\"\n            },\n            \"width\": {\n                \"value\": {{dimensions.item.width.value}},\n                \"unit\": \"{{dimensions.item.width.unit}}\"\n            },\n            \"height\": {\n                \"value\": {{dimensions.item.height.value}},\n                \"unit\": \"{{dimensions.item.height.unit}}\"\n            },\n            \"weight\": {\n                \"value\": {{dimensions.item.weight.value}},\n                \"unit\": \"{{dimensions.item.weight.unit}}\"\n            }\n        },\n        \"package\": {\n            \"length\": {\n                \"value\": {{dimensions.package.length.value}},\n                \"unit\": \"{{dimensions.package.length.unit}}\"\n            },\n            \"width\": {\n                \"value\": {{dimensions.package.width.value}},\n                \"unit\": \"{{dimensions.package.width.unit}}\"\n            },\n            \"height\": {\n                \"value\": {{dimensions.package.height.value}},\n                \"unit\": \"{{dimensions.package.height.unit}}\"\n            },\n            \"weight\": {\n                \"value\": {{dimensions.package.weight.value}},\n                \"unit\": \"{{dimensions.package.weight.unit}}\"\n            }\n        }\n    },\n    \"attributes\": {\n        \"hazmat_info\": {\n            \"is_hazmat\": {{attributes.hazmat_info.is_hazmat}}{{#attributes.hazmat_info.un_number}},\n            \"un_number\": \"{{attributes.hazmat_info.un_number}}\"{{/attributes.hazmat_info.un_number}}\n        }\n    }\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/products",
+          "host": [
+            "{{BASE_URL}}"
+          ],
+          "path": [
+            "products"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
 }
