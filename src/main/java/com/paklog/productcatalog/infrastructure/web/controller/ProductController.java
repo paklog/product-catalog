@@ -65,7 +65,8 @@ public class ProductController {
     @PostMapping
     @Operation(
         summary = "Create a new product",
-        description = "Adds a new product with its dimensions and attributes to the catalog. The SKU must be unique."
+        description = "Adds a new product with its dimensions and attributes to the catalog. The SKU must be unique.",
+        operationId = "createProduct"
     )
     @ApiResponse(responseCode = "201", description = "Product created successfully")
     @ApiResponse(responseCode = "409", description = "Product with SKU already exists",
@@ -98,7 +99,8 @@ public class ProductController {
     @GetMapping
     @Operation(
         summary = "List all products",
-        description = "Retrieves a paginated list of all products in the catalog."
+        description = "Retrieves a paginated list of all products in the catalog.",
+        operationId = "listProducts"
     )
     @ApiResponse(responseCode = "200", description = "A paged array of products")
     public ResponseEntity<ProductPageDto> listProducts(
@@ -106,7 +108,7 @@ public class ProductController {
         @RequestParam(required = false) @Min(0) Integer offset,
         
         @Parameter(description = "The number of items to return")
-        @RequestParam(required = false) @Min(1) Integer limit
+        @RequestParam(required = false) @Min(1) @Max(100) Integer limit
     ) {
         // Use configuration defaults if not provided
         int actualOffset = offset != null ? offset : paginationConfig.getDefaultOffset();
@@ -133,7 +135,8 @@ public class ProductController {
     @GetMapping("/{sku}")
     @Operation(
         summary = "Get product by SKU",
-        description = "Retrieves a single product by its unique Stock Keeping Unit (SKU)."
+        description = "Retrieves a single product by its unique Stock Keeping Unit (SKU).",
+        operationId = "getProductBySku"
     )
     @ApiResponse(responseCode = "200", description = "Successful operation")
     @ApiResponse(responseCode = "404", description = "Product not found",
@@ -152,8 +155,9 @@ public class ProductController {
     
     @PutMapping("/{sku}")
     @Operation(
-        summary = "Update a product (Full Replace)",
-        description = "Replaces the entire product resource with the provided data. All fields are required."
+        summary = "Update a product (full replace)",
+        description = "Replaces the entire product resource with the provided data. All fields are required.",
+        operationId = "updateProduct"
     )
     @ApiResponse(responseCode = "200", description = "Product updated successfully")
     @ApiResponse(responseCode = "404", description = "Product not found")
@@ -181,7 +185,8 @@ public class ProductController {
     @PatchMapping("/{sku}")
     @Operation(
         summary = "Partially update a product",
-        description = "Updates one or more fields of an existing product. Fields not included in the request body will not be changed."
+        description = "Updates one or more fields of an existing product. Fields not included in the request body will not be changed.",
+        operationId = "patchProduct"
     )
     @ApiResponse(responseCode = "200", description = "Product partially updated")
     @ApiResponse(responseCode = "404", description = "Product not found")
@@ -209,7 +214,8 @@ public class ProductController {
     @DeleteMapping("/{sku}")
     @Operation(
         summary = "Delete a product",
-        description = "Deletes a product from the catalog by its SKU."
+        description = "Deletes a product from the catalog by its SKU.",
+        operationId = "deleteProduct"
     )
     @ApiResponse(responseCode = "204", description = "Product deleted successfully")
     @ApiResponse(responseCode = "404", description = "Product not found")

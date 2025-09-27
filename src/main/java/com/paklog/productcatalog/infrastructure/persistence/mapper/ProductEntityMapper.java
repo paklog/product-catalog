@@ -11,7 +11,7 @@ public class ProductEntityMapper {
         if (product == null) {
             return null;
         }
-        
+
         ProductEntity entity = new ProductEntity();
         entity.setSku(product.getSku().value());
         entity.setTitle(product.getTitle());
@@ -19,8 +19,12 @@ public class ProductEntityMapper {
         entity.setAttributes(mapAttributes(product.getAttributes()));
         entity.setCreatedAt(product.getCreatedAt());
         entity.setUpdatedAt(product.getUpdatedAt());
-        entity.setVersion(product.getVersion());
-        
+
+        // Only set version if it's not null (for updates)
+        if (product.getVersion() != null) {
+            entity.setVersion(product.getVersion());
+        }
+
         return entity;
     }
     

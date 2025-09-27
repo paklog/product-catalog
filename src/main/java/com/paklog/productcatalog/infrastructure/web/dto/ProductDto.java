@@ -17,25 +17,25 @@ public record ProductDto(
     @Schema(description = "The display name of the product", example = "Industrial Grade Widget")
     @NotBlank String title,
     
-    @Valid DimensionsDto dimensions,
-    @Valid AttributesDto attributes
+    @Valid @NotNull DimensionsDto dimensions,
+    @Valid @NotNull AttributesDto attributes
 ) {
     
     @Schema(description = "A Value Object containing the physical dimensions of the item and its packaging")
     public record DimensionsDto(
         @Schema(description = "The dimensions of the product itself, without packaging")
-        @Valid DimensionSetDto item,
-        
+        @Valid @NotNull DimensionSetDto item,
+
         @Schema(description = "The dimensions of the product in its shippable packaging")
-        @JsonProperty("package") @Valid DimensionSetDto packageDimensions
+        @JsonProperty("package") @Valid @NotNull DimensionSetDto packageDimensions
     ) {}
     
     @Schema(description = "A complete set of measurements for an object")
     public record DimensionSetDto(
-        @Valid DimensionMeasurementDto length,
-        @Valid DimensionMeasurementDto width,
-        @Valid DimensionMeasurementDto height,
-        @Valid WeightMeasurementDto weight
+        @Valid @NotNull DimensionMeasurementDto length,
+        @Valid @NotNull DimensionMeasurementDto width,
+        @Valid @NotNull DimensionMeasurementDto height,
+        @Valid @NotNull WeightMeasurementDto weight
     ) {}
     
     @Schema(description = "A measurement of length, width, or height")
@@ -58,7 +58,7 @@ public record ProductDto(
     
     @Schema(description = "A Value Object for storing additional product characteristics and compliance data")
     public record AttributesDto(
-        @JsonProperty("hazmat_info") @Valid HazmatInfoDto hazmatInfo
+        @JsonProperty("hazmat_info") @Valid @NotNull HazmatInfoDto hazmatInfo
     ) {}
     
     @Schema(description = "Information related to hazardous material classification")
