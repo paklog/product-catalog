@@ -99,7 +99,7 @@
             "type": "loki",
             "uid": "${DS_LOKI}"
           },
-          "expr": "sum by (level) (count_over_time({service=\"product-catalog\"} | json [$__interval]))",
+          "expr": "sum by (level) (count_over_time({service=\"product-catalog\"} | json | __error__=\"\" [$__interval]))",
           "refId": "A"
         }
       ],
@@ -165,7 +165,7 @@
             "type": "loki",
             "uid": "${DS_LOKI}"
           },
-          "expr": "sum(count_over_time({service=\"product-catalog\", level=\"ERROR\"} [$__interval]))",
+          "expr": "sum(count_over_time({service=\"product-catalog\", level=\"ERROR\"} | json | __error__=\"\" [$__interval]))",
           "refId": "A"
         }
       ],
@@ -223,7 +223,7 @@
             "type": "loki",
             "uid": "${DS_LOKI}"
           },
-          "expr": "sum(count_over_time({service=\"product-catalog\", level=\"WARN\"} [$__interval]))",
+          "expr": "sum(count_over_time({service=\"product-catalog\", level=\"WARN\"} | json | __error__=\"\" [$__interval]))",
           "refId": "A"
         }
       ],
@@ -309,7 +309,7 @@
             "type": "loki",
             "uid": "${DS_LOKI}"
           },
-          "expr": "rate({service=\"product-catalog\", level=\"ERROR\"} [$__interval])",
+          "expr": "rate({service=\"product-catalog\", level=\"ERROR\"} | json | __error__=\"\" [$__interval])",
           "legendFormat": "Error Rate",
           "refId": "A"
         }

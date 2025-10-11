@@ -38,16 +38,16 @@ import java.util.Optional;
 @RequestMapping("/products")
 @Tag(name = "Products", description = "Operations related to the Product Catalog")
 public class ProductController {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
-    
+
     private final CreateProductUseCase createProductUseCase;
     private final GetProductUseCase getProductUseCase;
     private final UpdateProductUseCase updateProductUseCase;
     private final DeleteProductUseCase deleteProductUseCase;
     private final ProductDtoMapper mapper;
     private final com.paklog.productcatalog.infrastructure.config.PaginationConfig paginationConfig;
-    
+
     public ProductController(CreateProductUseCase createProductUseCase,
                            GetProductUseCase getProductUseCase,
                            UpdateProductUseCase updateProductUseCase,
@@ -61,7 +61,7 @@ public class ProductController {
         this.mapper = mapper;
         this.paginationConfig = paginationConfig;
     }
-    
+
     @PostMapping
     @Operation(
         summary = "Create a new product",
@@ -74,28 +74,29 @@ public class ProductController {
     @ApiResponse(responseCode = "400", description = "Invalid input",
                 content = @Content(schema = @Schema(implementation = ErrorDto.class)))
     public ResponseEntity<ProductDto> createProduct(@Valid @RequestBody ProductDto productDto) {
+
         logger.info("Creating product with SKU: {}", productDto.sku());
-        
+
         try {
             var product = mapper.toDomain(productDto);
             var command = CreateProductCommand.of(
-                product.getSku(), 
-                product.getTitle(), 
-                product.getDimensions(), 
+                product.getSku(),
+                product.getTitle(),
+                product.getDimensions(),
                 product.getAttributes()
             );
-            
+
             var createdProduct = createProductUseCase.createProduct(command);
             var responseDto = mapper.toDto(createdProduct);
-            
+
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
-            
+
         } catch (ProductAlreadyExistsException e) {
             logger.warn("Product creation failed: {}", e.getMessage());
             throw e;
         }
     }
-    
+
     @GetMapping
     @Operation(
         summary = "List all products",
@@ -106,7 +107,7 @@ public class ProductController {
     public ResponseEntity<ProductPageDto> listProducts(
         @Parameter(description = "The number of items to skip for pagination")
         @RequestParam(required = false) @Min(0) Integer offset,
-        
+
         @Parameter(description = "The number of items to return")
         @RequestParam(required = false) @Min(1) @Max(100) Integer limit
     ) {
@@ -114,11 +115,11 @@ public class ProductController {
         int actualOffset = offset != null ? offset : paginationConfig.getDefaultOffset();
         int actualLimit = limit != null ? Math.min(limit, paginationConfig.getMaxLimit()) : paginationConfig.getDefaultLimit();
         logger.debug("Listing products with offset: {} and limit: {}", actualOffset, actualLimit);
-        
+
         var query = ListProductsQuery.of(actualOffset, actualLimit);
         var products = getProductUseCase.listProducts(query);
         var productDtos = products.map(mapper::toDto).getContent();
-        
+
         var response = new ProductPageDto(
             productDtos,
             products.getTotalPages(),
@@ -128,10 +129,10 @@ public class ProductController {
             products.isFirst(),
             products.isLast()
         );
-        
+
         return ResponseEntity.ok(response);
     }
-    
+
     @GetMapping("/{sku}")
     @Operation(
         summary = "Get product by SKU",
@@ -146,13 +147,13 @@ public class ProductController {
         @PathVariable String sku
     ) {
         logger.debug("Getting product by SKU: {}", sku);
-        
+
         var query = GetProductQuery.of(SKU.of(sku));
         return getProductUseCase.getProduct(query)
                 .map(product -> ResponseEntity.ok(mapper.toDto(product)))
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     @PutMapping("/{sku}")
     @Operation(
         summary = "Update a product (full replace)",
@@ -164,24 +165,24 @@ public class ProductController {
     public ResponseEntity<ProductDto> updateProduct(
         @Parameter(description = "The unique SKU of the product to update", required = true)
         @PathVariable String sku,
-        
+
         @Valid @RequestBody ProductDto productDto
     ) {
         logger.info("Updating product with SKU: {}", sku);
-        
+
         var product = mapper.toDomain(productDto);
         var command = UpdateProductCommand.of(
-            SKU.of(sku), 
-            product.getTitle(), 
-            product.getDimensions(), 
+            SKU.of(sku),
+            product.getTitle(),
+            product.getDimensions(),
             product.getAttributes()
         );
-        
+
         return updateProductUseCase.updateProduct(command)
                 .map(updatedProduct -> ResponseEntity.ok(mapper.toDto(updatedProduct)))
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     @PatchMapping("/{sku}")
     @Operation(
         summary = "Partially update a product",
@@ -193,11 +194,11 @@ public class ProductController {
     public ResponseEntity<ProductDto> patchProduct(
         @Parameter(description = "The unique SKU of the product to update", required = true)
         @PathVariable String sku,
-        
+
         @Valid @RequestBody ProductDto productDto
     ) {
         logger.info("Patching product with SKU: {}", sku);
-        
+
         var product = mapper.toDomain(productDto);
         var command = PatchProductCommand.of(
             SKU.of(sku),
@@ -205,12 +206,12 @@ public class ProductController {
             Optional.ofNullable(product.getDimensions()),
             Optional.ofNullable(product.getAttributes())
         );
-        
+
         return updateProductUseCase.patchProduct(command)
                 .map(updatedProduct -> ResponseEntity.ok(mapper.toDto(updatedProduct)))
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     @DeleteMapping("/{sku}")
     @Operation(
         summary = "Delete a product",
@@ -224,10 +225,10 @@ public class ProductController {
         @PathVariable String sku
     ) {
         logger.info("Deleting product with SKU: {}", sku);
-        
+
         var command = DeleteProductCommand.of(SKU.of(sku));
         boolean deleted = deleteProductUseCase.deleteProduct(command);
-        
+
         return deleted ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }
