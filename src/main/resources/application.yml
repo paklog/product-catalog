@@ -47,11 +47,22 @@ management:
     export:
       prometheus:
         enabled: true
+    tags:
+      application: ${spring.application.name}
+      environment: dev
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
+  loki:
+    url: http://localhost:3100
 
 logging:
   level:
-    com.paklog.productcatalog: DEBUG
-    org.springframework.data.mongodb: DEBUG
+    com.paklog.productcatalog: INFO
+    org.springframework.data.mongodb: INFO
   pattern:
     console: "%d{ISO8601} [%thread] %-5level [%logger{36}] - %msg%n"
 
