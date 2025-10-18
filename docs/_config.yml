@@ -1,0 +1,25 @@
+title: Product Catalog Service Documentation
+description: Product catalog with DDD, CQRS, and event-driven architecture
+theme: jekyll-theme-cayman
+baseurl: "/product-catalog"
+url: "https://paklog.github.io"
+
+# GitHub
+github:
+  repository_url: https://github.com/paklog/product-catalog
+
+# Build settings
+markdown: kramdown
+plugins:
+  - jekyll-relative-links
+
+relative_links:
+  enabled: true
+  collections: false
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
