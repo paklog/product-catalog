@@ -14,8 +14,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
@@ -29,7 +32,9 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(ProductController.class)
+@WebMvcTest(value = ProductController.class,
+    excludeAutoConfiguration = KafkaAutoConfiguration.class,
+    excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = "com.paklog.productcatalog.infrastructure.messaging.*"))
 @DisplayName("Product Controller Integration Tests")
 class ProductControllerTest {
     
@@ -50,7 +55,10 @@ class ProductControllerTest {
     
     @MockBean
     private ProductDtoMapper mapper;
-    
+
+    @MockBean
+    private com.paklog.productcatalog.infrastructure.config.PaginationConfig paginationConfig;
+
     private final String testSku = "TEST-SKU-123";
     private final String testTitle = "Test Product";
     

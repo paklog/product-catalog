@@ -2,9 +2,14 @@ spring:
   data:
     mongodb:
       uri: mongodb://localhost:27018/productcatalog-test
-  
+
   kafka:
     bootstrap-servers: localhost:29092
+
+product-catalog:
+  kafka:
+    topics:
+      product-events: test.product-catalog.events
 
 logging:
   level:

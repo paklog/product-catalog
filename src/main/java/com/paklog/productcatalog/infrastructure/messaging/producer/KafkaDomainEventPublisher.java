@@ -21,7 +21,7 @@ public class KafkaDomainEventPublisher implements DomainEventPublisher {
 
     public KafkaDomainEventPublisher(
         KafkaTemplate<String, Object> kafkaTemplate,
-        @Value("${spring.kafka.topic.domain-events}") String topicName
+        @Value("${product-catalog.kafka.topics.product-events}") String topicName
     ) {
         this.kafkaTemplate = kafkaTemplate;
         this.topicName = topicName;

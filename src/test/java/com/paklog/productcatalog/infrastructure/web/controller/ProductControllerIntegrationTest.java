@@ -12,8 +12,10 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import java.math.BigDecimal;
 
@@ -30,9 +32,13 @@ public class ProductControllerIntegrationTest {
     static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0")
             .withExposedPorts(27017);
 
+    @Container
+    static KafkaContainer kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.0"));
+
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+        registry.add("spring.kafka.bootstrap-servers", kafkaContainer::getBootstrapServers);
     }
 
     private final MockMvc mockMvc;

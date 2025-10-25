@@ -51,7 +51,7 @@ public class Product {
         this.attributes = attributes != null ? attributes : Attributes.withoutHazmat();
         this.createdAt = Instant.now();
         this.updatedAt = this.createdAt;
-        this.version = null; // Let MongoDB auto-generate version for new documents
+        this.version = 0L;
 
         this.domainEvents.add(new ProductCreatedEvent(this.sku, this.title));
     }
