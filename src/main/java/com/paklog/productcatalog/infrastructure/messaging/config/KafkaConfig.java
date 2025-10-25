@@ -25,10 +25,8 @@ public class KafkaConfig {
     
     private static final Logger logger = LoggerFactory.getLogger(KafkaConfig.class);
     
-    @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
     
-    @Value("${product-catalog.kafka.topics.product-events}")
     private String productEventsTopic;
     
     @Bean

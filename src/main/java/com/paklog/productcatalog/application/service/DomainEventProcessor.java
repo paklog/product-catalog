@@ -64,6 +64,8 @@ public class DomainEventProcessor {
             logger.error("Failed to publish domain event: {} with ID: {}", 
                         event.getEventType(), event.getEventId(), e);
             throw new EventPublishingException(event.getEventType(), event.getEventId(), e);
-        }
-    }
+        
+
+}
+}
 }

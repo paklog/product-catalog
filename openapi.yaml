@@ -433,4 +433,4 @@ components:
         message:
           type: string
           description: Human-readable explanation of the error.
-          example: Validation failed: sku must not be blank
+          example: "Validation failed: sku must not be blank"

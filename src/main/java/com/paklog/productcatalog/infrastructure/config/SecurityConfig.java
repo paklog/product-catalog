@@ -13,13 +13,10 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
     
-    @Value("${product-catalog.cors.allowed-origins:http://localhost:3000,http://localhost:8082}")
     private String[] allowedOrigins;
     
-    @Value("${product-catalog.cors.allowed-methods:GET,POST,PUT,PATCH,DELETE,OPTIONS}")
     private String[] allowedMethods;
     
-    @Value("${product-catalog.cors.allowed-headers:*}")
     private String[] allowedHeaders;
     
     @Bean

@@ -18,4 +18,16 @@ public class ProductDeletedEvent extends DomainEvent {
     public String getEventType() {
         return "ProductDeleted";
     }
+
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder {
+        private SKU sku;
+
+        public Builder sku(final SKU sku) { this.sku = sku; return this; }
+
+        public ProductDeletedEvent build() {
+            return new ProductDeletedEvent(sku);
+        }
+    }
 }

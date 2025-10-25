@@ -173,6 +173,8 @@ class ArchitectureTest {
                     .should().haveNameMatching(".*Exception");
             
             rule.allowEmptyShould(true).check(classes);
-        }
-    }
+        
+
+}
+}
 }

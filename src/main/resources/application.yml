@@ -81,7 +81,7 @@ springdoc:
 product-catalog:
   kafka:
     topics:
-      product-events: product.events
+      product-events: order-fulfillment-core.product-catalog.events
   mongodb:
     database: productcatalog
     collections:

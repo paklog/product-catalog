@@ -88,7 +88,7 @@ public class ProductEntity {
         private WeightMeasurementEntity weight;
         
         public DimensionSetEntity() {}
-        
+
         public DimensionSetEntity(DimensionMeasurementEntity length, DimensionMeasurementEntity width,
                                 DimensionMeasurementEntity height, WeightMeasurementEntity weight) {
             this.length = length;
@@ -138,14 +138,14 @@ public class ProductEntity {
             this.value = value;
             this.unit = unit;
         }
-        
+
         public BigDecimal getValue() { return value; }
         public void setValue(BigDecimal value) { this.value = value; }
-        
+
         public String getUnit() { return unit; }
         public void setUnit(String unit) { this.unit = unit; }
     }
-    
+
     public static class AttributesEntity {
         private HazmatInfoEntity hazmatInfo;
         

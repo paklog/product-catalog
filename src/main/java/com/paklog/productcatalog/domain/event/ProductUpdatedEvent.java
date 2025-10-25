@@ -24,4 +24,18 @@ public class ProductUpdatedEvent extends DomainEvent {
     public String getEventType() {
         return "ProductUpdated";
     }
+
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder {
+        private SKU sku;
+        private String title;
+
+        public Builder sku(final SKU sku) { this.sku = sku; return this; }
+        public Builder title(final String title) { this.title = title; return this; }
+
+        public ProductUpdatedEvent build() {
+            return new ProductUpdatedEvent(sku, title);
+        }
+    }
 }
