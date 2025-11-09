@@ -5,7 +5,6 @@ import com.paklog.productcatalog.application.query.GetProductQuery;
 import com.paklog.productcatalog.application.query.ListProductsQuery;
 import com.paklog.productcatalog.domain.model.Product;
 import com.paklog.productcatalog.domain.repository.ProductRepository;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -29,13 +28,13 @@ public class ProductQueryService implements GetProductUseCase {
     }
     
     @Override
-    public Optional<Product> getProduct(@Valid GetProductQuery query) {
+    public Optional<Product> getProduct(GetProductQuery query) {
         logger.debug("Retrieving product with SKU: {}", query.sku());
         return productRepository.findBySku(query.sku());
     }
-    
+
     @Override
-    public Page<Product> listProducts(@Valid ListProductsQuery query) {
+    public Page<Product> listProducts(ListProductsQuery query) {
         logger.debug("Listing products with offset: {} and limit: {}", query.offset(), query.limit());
         return productRepository.findAll(query.toPageable());
     }

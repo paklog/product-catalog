@@ -267,14 +267,18 @@ components:
       required:
         - sku
         - title
+        - dimensions
+        - attributes
       properties:
         sku:
           type: string
           description: The unique, seller-defined Stock Keeping Unit.
+          minLength: 1
           example: EXAMPLE-SKU-123
         title:
           type: string
           description: The display name of the product.
+          minLength: 1
           example: Industrial Grade Widget
         dimensions:
           $ref: '#/components/schemas/Dimensions'
@@ -358,7 +362,7 @@ components:
         value:
           type: number
           format: double
-          description: Numeric value of the measurement.
+          description: Numeric value of the measurement. Must be positive.
           minimum: 0
           exclusiveMinimum: true
           example: 10.5
@@ -382,7 +386,7 @@ components:
         value:
           type: number
           format: double
-          description: Numeric value of the weight.
+          description: Numeric value of the weight. Must be positive.
           minimum: 0
           exclusiveMinimum: true
           example: 5.8
@@ -415,7 +419,8 @@ components:
           example: true
         un_number:
           type: string
-          description: UN number for the hazardous material (required when is_hazmat is true).
+          description: UN number for the hazardous material. Required when is_hazmat is true.
+          pattern: '^UN\d{4}$'
           example: UN1950
           nullable: true
     Error:

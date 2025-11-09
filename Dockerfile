@@ -1,47 +1,86 @@
-# Multi-stage build for optimized production image
+# ============================================
+# Multi-stage Dockerfile for Product Catalog Service
+# Best Practices: Multi-stage build, non-root user, layer caching, security hardening
+# ============================================
+
+# ============================================
+# Stage 1: Build Stage
+# ============================================
 FROM eclipse-temurin:21-jdk-alpine AS builder
 
-WORKDIR /app
+# Set build arguments
+ARG APP_VERSION=1.0.0-SNAPSHOT
+ARG BUILD_DATE
+ARG VCS_REF
+
+# Install Maven
+RUN apk add --no-cache maven
+
+# Set working directory
+WORKDIR /build
+
+# Copy Maven files for dependency caching
 COPY pom.xml .
+
+# Download dependencies (cached layer)
+RUN mvn dependency:go-offline -B || true
+
+# Copy application source
 COPY src ./src
 
-# Cache Maven dependencies
-COPY .mvn .mvn
-COPY mvnw .
-RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
-
 # Build the application
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests -B && \
+    mv target/*.jar target/app.jar
 
-# Production image
+# ============================================
+# Stage 2: Runtime Stage
+# ============================================
 FROM eclipse-temurin:21-jre-alpine
 
-LABEL maintainer="paklog-team@example.com"
-LABEL description="Product Catalog Service"
-LABEL version="1.0.0"
+# Metadata labels (OCI standard)
+LABEL org.opencontainers.image.title="Product Catalog Service" \
+      org.opencontainers.image.description="Product catalog service with DDD, CQRS, and event-driven architecture" \
+      org.opencontainers.image.version="${APP_VERSION}" \
+      org.opencontainers.image.vendor="Paklog" \
+      org.opencontainers.image.authors="Paklog Engineering Team" \
+      org.opencontainers.image.source="https://github.com/paklog/product-catalog" \
+      com.paklog.service.tier="core" \
+      com.paklog.service.phase="1"
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S appgroup && \
-    adduser -u 1001 -S appuser -G appgroup
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
 
+# Create non-root user and group
+RUN addgroup -S spring && adduser -S spring -G spring
+
+# Set working directory
 WORKDIR /app
 
-# Copy the built JAR from builder stage
-COPY --from=builder /app/target/product-catalog-*.jar app.jar
+# Copy JAR from builder
+COPY --from=builder --chown=spring:spring /build/target/app.jar app.jar
 
-# Change ownership to non-root user
-RUN chown -R appuser:appgroup /app
-USER appuser
+# Switch to non-root user
+USER spring:spring
+
+# Expose application port
+EXPOSE 8080
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
 
-# Expose port
-EXPOSE 8082
+# JVM options optimized for containers
+ENV JAVA_OPTS="-XX:+UseContainerSupport \
+               -XX:MaxRAMPercentage=75.0 \
+               -XX:InitialRAMPercentage=50.0 \
+               -XX:+UseG1GC \
+               -XX:+UseStringDeduplication \
+               -XX:+OptimizeStringConcat \
+               -Djava.security.egd=file:/dev/./urandom \
+               -Dspring.backgroundpreinitializer.ignore=true"
 
-# JVM optimizations for containers
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC"
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
 # Run the application
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+CMD ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

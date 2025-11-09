@@ -2,12 +2,12 @@ package com.paklog.productcatalog.infrastructure.web.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "Error response")
+@Schema(description = "Error response payload")
 public record ErrorDto(
-    @Schema(description = "Error code")
+    @Schema(description = "Numeric error code aligned with HTTP status", example = "400")
     int code,
-    
-    @Schema(description = "Error message")
+
+    @Schema(description = "Human-readable explanation of the error", example = "Validation failed: sku must not be blank")
     String message
 ) {
     
