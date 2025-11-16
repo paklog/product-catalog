@@ -2,11 +2,12 @@ package com.paklog.productcatalog.infrastructure.persistence.mapper;
 
 import com.paklog.productcatalog.domain.model.*;
 import com.paklog.productcatalog.infrastructure.persistence.entity.ProductEntity;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProductEntityMapper {
-    
+
     public ProductEntity toEntity(Product product) {
         if (product == null) {
             return null;
@@ -20,10 +21,12 @@ public class ProductEntityMapper {
         entity.setCreatedAt(product.getCreatedAt());
         entity.setUpdatedAt(product.getUpdatedAt());
 
-        // Only set version if it's not null (for updates)
+        // For updates, copy the version (ID will be set in repository from existing entity)
+        // For new entities, leave both ID and version as null so Spring Data will INSERT
         if (product.getVersion() != null) {
             entity.setVersion(product.getVersion());
         }
+        // ID is intentionally left null for new entities - MongoDB will auto-generate it
 
         return entity;
     }

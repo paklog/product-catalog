@@ -1,7 +1,6 @@
 package com.paklog.productcatalog.infrastructure.persistence.entity;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
 
@@ -10,21 +9,20 @@ import java.time.Instant;
 
 @Document(collection = "products")
 public class ProductEntity {
-    
+
     @Id
     private String id;
-    
-    @Indexed(unique = true)
+
+    @Indexed(unique = true, name = "sku_1")
     private String sku;
-    
+
     private String title;
     private DimensionsEntity dimensions;
     private AttributesEntity attributes;
-    
+
     private Instant createdAt;
     private Instant updatedAt;
-    
-    @Version
+
     private Long version;
     
     public ProductEntity() {}
