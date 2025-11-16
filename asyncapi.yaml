@@ -3,9 +3,38 @@ info:
   title: Product Catalog Service Events
   version: 1.1.0
   description: |-
+    Event-driven API specification for the Product Catalog Service.
+
+    ## Overview
+
     The Product Catalog Service manages product information and publishes domain events
     when products are created, updated, or deleted. This service follows Domain-Driven Design
-    principles and uses event-driven architecture.
+    principles and uses event-driven architecture to enable loose coupling between services.
+
+    ## Architecture
+
+    Events are published using the Outbox pattern with the following flow:
+    1. Domain events are created within the Product aggregate during state changes
+    2. Events are extracted and published asynchronously to Kafka
+    3. Consumers can subscribe to the event stream for real-time updates
+
+    ## Event Guarantees
+
+    - **At-least-once delivery**: Events may be delivered multiple times; consumers should be idempotent
+    - **Ordering**: Events for the same SKU are guaranteed to be ordered within a partition
+    - **Durability**: Events are persisted in Kafka with configurable retention
+
+    ## Serialization
+
+    All events are serialized to JSON using **snake_case** naming convention for field names.
+    This ensures consistency with the REST API and interoperability across different systems.
+
+    ## Use Cases
+
+    - **Inventory Service**: React to product changes for stock management
+    - **Search Service**: Update search indexes when products change
+    - **Analytics Service**: Track product lifecycle metrics
+    - **Notification Service**: Alert stakeholders about product changes
   contact:
     name: Paklog Team
     url: https://github.com/paklog/product-catalog
@@ -18,22 +47,41 @@ servers:
   development:
     host: localhost:9092
     protocol: kafka
-    description: Kafka broker for development environment
+    description: |-
+      Kafka broker for development environment.
+      Default configuration with 3 partitions and single replica.
     tags:
       - name: env:development
-        description: Development environment
+        description: Development environment for local testing and integration
   production:
-    host: localhost:9092
+    host: kafka.production.svc:9092
     protocol: kafka
-    description: Kafka broker for production environment
+    description: |-
+      Production Kafka cluster with high availability configuration.
+      Multi-broker setup with replication for fault tolerance.
     tags:
       - name: env:production
-        description: Production environment
+        description: Production environment with enterprise-grade reliability
 
 channels:
   product.events:
     address: product.events
-    description: Channel for all product-related domain events emitted by the service
+    description: |-
+      Primary channel for all product-related domain events.
+
+      **Topic Configuration:**
+      - Partitions: 3 (for parallel processing)
+      - Replication Factor: Based on environment
+      - Cleanup Policy: Compact (retains latest state per key)
+      - Retention: Configurable based on requirements
+
+      **Partitioning Strategy:**
+      Events are partitioned by event_id to ensure ordering of related events.
+      The SKU value is included in the payload for filtering and routing.
+
+      **Consumer Groups:**
+      Each consuming service should use its own consumer group to enable
+      independent processing and offset management.
     messages:
       ProductCreatedEvent:
         $ref: '#/components/messages/ProductCreatedEvent'
@@ -48,49 +96,94 @@ operations:
     channel:
       $ref: '#/channels/product.events'
     summary: Publish product created event
-    description: Published when a new product is created in the catalog
+    description: |-
+      Published when a new product is successfully created in the catalog.
+
+      **Trigger Conditions:**
+      - POST /products returns 201 Created
+      - Product passes all validation rules
+      - Product is persisted to the database
+
+      **Event Timing:**
+      Events are published asynchronously after the HTTP response is sent.
+      This ensures the API remains responsive while events are processed.
+
+      **Idempotency:**
+      Each event has a unique event_id. Consumers should use this ID
+      to detect and handle duplicate deliveries.
     messages:
       - $ref: '#/components/messages/ProductCreatedEvent'
     tags:
       - name: Product Events
-        description: Product lifecycle events
+        description: Product lifecycle events for catalog management
 
   publishProductUpdated:
     action: send
     channel:
       $ref: '#/channels/product.events'
     summary: Publish product updated event
-    description: Published when an existing product is modified
+    description: |-
+      Published when an existing product is modified in the catalog.
+
+      **Trigger Conditions:**
+      - PUT /products/{sku} returns 200 OK (full replacement)
+      - PATCH /products/{sku} returns 200 OK (partial update)
+      - At least one field value has changed
+
+      **Event Content:**
+      The event contains the updated product title. For complete product
+      state, consumers should fetch the product via the REST API.
+
+      **Multiple Updates:**
+      Rapid successive updates may generate multiple events. Consumers
+      should process events in order and may want to debounce or batch
+      processing for efficiency.
     messages:
       - $ref: '#/components/messages/ProductUpdatedEvent'
     tags:
       - name: Product Events
-        description: Product lifecycle events
+        description: Product lifecycle events for catalog management
 
   publishProductDeleted:
     action: send
     channel:
       $ref: '#/channels/product.events'
     summary: Publish product deleted event
-    description: Published when a product is deleted from the catalog
+    description: |-
+      Published when a product is permanently deleted from the catalog.
+
+      **Trigger Conditions:**
+      - DELETE /products/{sku} returns 204 No Content
+      - Product existed and was successfully removed
+
+      **Important Notes:**
+      - Deletion is permanent and cannot be undone
+      - The product data is no longer available via REST API
+      - Consumers should clean up any cached or derived data
+
+      **Tombstone Pattern:**
+      This event serves as a tombstone record, indicating the product
+      no longer exists in the catalog.
     messages:
       - $ref: '#/components/messages/ProductDeletedEvent'
     tags:
       - name: Product Events
-        description: Product lifecycle events
+        description: Product lifecycle events for catalog management
 
 components:
   messages:
     ProductCreatedEvent:
       name: ProductCreatedEvent
       title: Product Created Event
-      summary: Event emitted when a new product is created
+      summary: |-
+        Domain event indicating a new product has been added to the catalog.
+        Contains the essential product information at the time of creation.
       contentType: application/json
       payload:
         $ref: '#/components/schemas/ProductCreatedEvent'
       examples:
-        - name: product-created
-          summary: Example of a product created event
+        - name: hazmat-product-created
+          summary: Example of a hazardous material product being created
           payload:
             event_id: 550e8400-e29b-41d4-a716-446655440000
             occurred_on: '2024-01-15T10:30:00Z'
@@ -98,16 +191,28 @@ components:
             sku:
               value: LAPTOP-001
             title: Gaming Laptop Pro
+        - name: standard-product-created
+          summary: Example of a standard product being created
+          payload:
+            event_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+            occurred_on: '2024-01-15T14:45:30Z'
+            event_type: ProductCreated
+            sku:
+              value: WIDGET-XYZ-789
+            title: Premium Industrial Widget
+
     ProductUpdatedEvent:
       name: ProductUpdatedEvent
       title: Product Updated Event
-      summary: Event emitted when a product is updated
+      summary: |-
+        Domain event indicating an existing product has been modified.
+        Contains the updated product title reflecting the change.
       contentType: application/json
       payload:
         $ref: '#/components/schemas/ProductUpdatedEvent'
       examples:
-        - name: product-updated
-          summary: Example of a product updated event
+        - name: title-updated
+          summary: Example of a product title being updated
           payload:
             event_id: 550e8400-e29b-41d4-a716-446655440001
             occurred_on: '2024-01-15T11:30:00Z'
@@ -115,27 +220,59 @@ components:
             sku:
               value: LAPTOP-001
             title: Gaming Laptop Pro Max
+        - name: dimensions-updated
+          summary: Example of product dimensions being updated
+          payload:
+            event_id: 8f14e45f-ceea-367a-a714-f5c6e3a8f1b2
+            occurred_on: '2024-01-15T16:20:15Z'
+            event_type: ProductUpdated
+            sku:
+              value: WIDGET-XYZ-789
+            title: Premium Industrial Widget
+
     ProductDeletedEvent:
       name: ProductDeletedEvent
       title: Product Deleted Event
-      summary: Event emitted when a product is deleted
+      summary: |-
+        Domain event indicating a product has been permanently removed from the catalog.
+        Contains only the SKU identifier of the deleted product.
       contentType: application/json
       payload:
         $ref: '#/components/schemas/ProductDeletedEvent'
       examples:
         - name: product-deleted
-          summary: Example of a product deleted event
+          summary: Example of a product being deleted from the catalog
           payload:
             event_id: 550e8400-e29b-41d4-a716-446655440002
             occurred_on: '2024-01-15T12:30:00Z'
             event_type: ProductDeleted
             sku:
               value: LAPTOP-001
+        - name: discontinued-product-deleted
+          summary: Example of a discontinued product being removed
+          payload:
+            event_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+            occurred_on: '2024-01-16T09:00:00Z'
+            event_type: ProductDeleted
+            sku:
+              value: OLD-PRODUCT-123
 
   schemas:
     DomainEvent:
       type: object
-      description: Base contract shared by all domain events emitted by the service
+      description: |-
+        Base contract shared by all domain events emitted by the Product Catalog Service.
+
+        This schema defines the common envelope structure that wraps all domain events,
+        providing essential metadata for event processing, tracing, and auditing.
+
+        **Event Sourcing:**
+        These events can be used to reconstruct the state of the product catalog
+        at any point in time by replaying the event stream.
+
+        **Correlation:**
+        The event_id can be used to correlate events across distributed systems
+        and for deduplication in at-least-once delivery scenarios.
       required:
         - event_id
         - occurred_on
@@ -145,20 +282,50 @@ components:
         event_id:
           type: string
           format: uuid
-          description: Unique identifier for the event instance
+          description: |-
+            Unique identifier for this specific event instance.
+            Generated as a UUID v4 when the event is created.
+            Used for:
+            - Deduplication in consumers
+            - Event tracing and debugging
+            - Audit trail correlation
+          example: 550e8400-e29b-41d4-a716-446655440000
         occurred_on:
           type: string
           format: date-time
-          description: Timestamp when the event occurred (UTC)
+          description: |-
+            ISO 8601 timestamp indicating when the domain event occurred.
+            Always in UTC timezone (Z suffix).
+            Represents the moment the business action was performed,
+            not when the event was published to Kafka.
+          example: '2024-01-15T10:30:00Z'
         event_type:
           type: string
-          description: Type of the domain event
+          description: |-
+            Discriminator field identifying the specific type of domain event.
+            Used by consumers to determine how to process the event payload.
+            Values: ProductCreated, ProductUpdated, ProductDeleted
+          example: ProductCreated
         sku:
           $ref: '#/components/schemas/SKU'
+          description: |-
+            The Stock Keeping Unit of the product associated with this event.
+            This identifies which product in the catalog was affected.
+
     ProductCreatedEvent:
       allOf:
         - $ref: '#/components/schemas/DomainEvent'
         - type: object
+          description: |-
+            Event payload for product creation.
+
+            This event is emitted when a new product is successfully added to the catalog.
+            It contains the initial state of the product including its title.
+
+            **Handling Guidelines:**
+            - Create corresponding entries in dependent systems (search index, cache, etc.)
+            - Initialize any derived data structures
+            - Log for audit trail purposes
           required:
             - title
           properties:
@@ -166,13 +333,35 @@ components:
               type: string
               enum:
                 - ProductCreated
+              description: |-
+                Event type discriminator. Always "ProductCreated" for this event.
             title:
               type: string
-              description: Product title at the time of creation
+              description: |-
+                The display title of the product at the time of creation.
+                This is the human-readable name that identifies the product.
+              minLength: 1
+              example: Gaming Laptop Pro
+
     ProductUpdatedEvent:
       allOf:
         - $ref: '#/components/schemas/DomainEvent'
         - type: object
+          description: |-
+            Event payload for product updates.
+
+            This event is emitted when any aspect of a product is modified,
+            including title, dimensions, or attributes.
+
+            **Important Notes:**
+            - The event contains the updated title
+            - For complete state, query the REST API
+            - Multiple rapid updates generate multiple events
+
+            **Handling Guidelines:**
+            - Update cached or indexed product data
+            - Invalidate any derived calculations
+            - Consider batching updates for efficiency
           required:
             - title
           properties:
@@ -180,28 +369,87 @@ components:
               type: string
               enum:
                 - ProductUpdated
+              description: |-
+                Event type discriminator. Always "ProductUpdated" for this event.
             title:
               type: string
-              description: Updated product title
+              description: |-
+                The updated display title of the product.
+                Reflects the current state after the modification.
+              minLength: 1
+              example: Gaming Laptop Pro Max
+
     ProductDeletedEvent:
       allOf:
         - $ref: '#/components/schemas/DomainEvent'
         - type: object
+          description: |-
+            Event payload for product deletion.
+
+            This event is emitted when a product is permanently removed from the catalog.
+            It serves as a tombstone record indicating the product no longer exists.
+
+            **Important Notes:**
+            - Deletion is permanent and irreversible
+            - Only the SKU is provided (inherited from base event)
+            - Product data is no longer available via REST API
+
+            **Handling Guidelines:**
+            - Remove product from search indexes
+            - Clean up cached product data
+            - Archive or remove derived data
+            - Update any aggregations or statistics
           properties:
             event_type:
               type: string
               enum:
                 - ProductDeleted
+              description: |-
+                Event type discriminator. Always "ProductDeleted" for this event.
+
     SKU:
       type: object
-      description: Stock Keeping Unit - unique product identifier
+      description: |-
+        Stock Keeping Unit value object representing the unique product identifier.
+
+        The SKU is a seller-defined identifier that uniquely identifies a product
+        within the catalog. It is immutable once assigned to a product.
+
+        **Structure:**
+        The SKU is wrapped in an object with a "value" field to maintain
+        consistency with the domain model's value object pattern.
+
+        **Usage in Events:**
+        Every domain event includes the SKU to identify which product
+        was affected, enabling consumers to filter and route events appropriately.
       required:
         - value
       properties:
         value:
           type: string
-          description: Seller-provided SKU value
+          description: |-
+            The actual SKU string value assigned by the seller.
+            Must be unique across the entire product catalog.
+            Cannot be empty or blank.
           minLength: 1
+          maxLength: 255
+          example: LAPTOP-001
+
 tags:
   - name: Product Events
-    description: Events related to product lifecycle management
+    description: |-
+      Domain events related to product lifecycle management.
+
+      These events represent significant state changes in the product catalog
+      and are designed to enable event-driven integration patterns.
+
+      **Event Categories:**
+      - **Creation**: New products added to the catalog
+      - **Modification**: Existing products updated
+      - **Deletion**: Products removed from the catalog
+
+      **Consumer Responsibilities:**
+      - Implement idempotent event handlers
+      - Handle events in order per partition
+      - Manage consumer group offsets appropriately
+      - Implement error handling and dead letter queues

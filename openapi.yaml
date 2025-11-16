@@ -4,7 +4,38 @@ info:
   description: |-
     A RESTful API for managing product catalog data, including dimensions and compliance attributes.
     This API is designed using Domain-Driven Design principles, with the Product as the central Aggregate.
+
+    ## Architecture Overview
+
+    The Product Catalog Service follows Clean Architecture and DDD principles:
+    - **Domain Layer**: Core business logic with Product as the Aggregate Root
+    - **Application Layer**: Use cases orchestrating domain operations
+    - **Infrastructure Layer**: REST controllers, persistence, and messaging
+
+    ## Key Features
+
+    - Full CRUD operations for product management
+    - Support for both item and package dimensions with multiple unit systems
+    - Hazardous material compliance tracking with UN number validation
+    - Pagination support for large product catalogs
+    - Event-driven architecture with domain events published to Kafka
+
+    ## Data Format
+
+    All JSON payloads use **snake_case** naming convention for consistency and interoperability.
+    Null values are excluded from responses to reduce payload size.
+
+    ## Error Handling
+
+    The API uses standard HTTP status codes and returns structured error responses with:
+    - Numeric error code aligned with HTTP status
+    - Human-readable error message explaining the issue
   version: 1.1.0
+  contact:
+    name: Paklog Team
+    url: https://github.com/paklog/product-catalog
+  license:
+    name: MIT
 servers:
   - url: http://localhost:8082
     description: Local development server
@@ -12,17 +43,32 @@ servers:
     description: Example production server
 tags:
   - name: Products
-    description: Operations related to the Product Catalog
+    description: |-
+      Operations for managing the Product Catalog. Products are the core domain entities
+      representing physical items with dimensions, packaging information, and compliance attributes.
 paths:
   /products:
     post:
       tags:
         - Products
       summary: Create a new product
-      description: Adds a new product with its dimensions and attributes to the catalog. The SKU must be unique.
+      description: |-
+        Adds a new product with its dimensions and attributes to the catalog.
+
+        **Business Rules:**
+        - The SKU must be unique across the entire catalog
+        - Item dimensions must fit within package dimensions
+        - If the product is hazardous material (is_hazmat=true), the un_number is required
+        - If the product is not hazardous (is_hazmat=false), the un_number should be null
+
+        **Side Effects:**
+        - A ProductCreatedEvent is published to Kafka upon successful creation
+        - Timestamps (created_at, updated_at) are automatically set
       operationId: createProduct
       requestBody:
-        description: Product that needs to be added to the catalog.
+        description: |-
+          Complete product data to be added to the catalog.
+          All required fields must be provided with valid values.
         required: true
         content:
           application/json:
@@ -64,50 +110,85 @@ paths:
                   un_number: UN1950
       responses:
         '201':
-          description: Product created successfully
+          description: |-
+            Product created successfully. Returns the complete product data as stored in the catalog.
+            A ProductCreatedEvent has been published to the event stream.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
         '400':
-          description: Validation failed for the provided product data
+          description: |-
+            Validation failed for the provided product data. Common causes include:
+            - Missing required fields (sku, title, dimensions, attributes)
+            - Invalid dimension values (negative or zero)
+            - Item dimensions exceed package dimensions
+            - Missing UN number for hazardous materials
+            - Invalid unit values
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                code: 400
+                message: "Validation failed: Item dimensions must fit within package dimensions"
         '409':
-          description: Product with the given SKU already exists
+          description: |-
+            Conflict - A product with the given SKU already exists in the catalog.
+            SKUs must be unique across all products.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                code: 409
+                message: "Product with SKU 'EXAMPLE-SKU-123' already exists"
     get:
       tags:
         - Products
       summary: List all products
-      description: Retrieves a paginated list of all products in the catalog.
+      description: |-
+        Retrieves a paginated list of all products in the catalog.
+
+        **Pagination:**
+        - Use offset and limit parameters to control pagination
+        - Default page size is 20 items, maximum is 100
+        - Response includes metadata about total items and pages
+
+        **Performance Considerations:**
+        - Large catalogs benefit from smaller page sizes
+        - Consider caching responses for frequently accessed pages
       operationId: listProducts
       parameters:
         - name: offset
           in: query
-          description: The number of items to skip for pagination.
+          description: |-
+            The number of items to skip for pagination (0-based indexing).
+            Used to calculate which page to return.
           required: false
           schema:
             type: integer
             minimum: 0
             default: 0
+          example: 0
         - name: limit
           in: query
-          description: The number of items to return.
+          description: |-
+            The maximum number of items to return per page.
+            Must be between 1 and 100 inclusive.
           required: false
           schema:
             type: integer
             minimum: 1
             maximum: 100
             default: 20
+          example: 20
       responses:
         '200':
-          description: A paged response containing products.
+          description: |-
+            A paginated response containing products and metadata.
+            The response includes information about the current page position
+            and total available data.
           content:
             application/json:
               schema:
@@ -157,37 +238,61 @@ paths:
     parameters:
       - name: sku
         in: path
-        description: The unique SKU of the product.
+        description: |-
+          The unique Stock Keeping Unit (SKU) identifier for the product.
+          This is a seller-defined identifier that must be unique across the catalog.
         required: true
         schema:
           type: string
+          minLength: 1
+        example: EXAMPLE-SKU-123
     get:
       tags:
         - Products
       summary: Get product by SKU
-      description: Retrieves a single product by its unique Stock Keeping Unit (SKU).
+      description: |-
+        Retrieves a single product by its unique Stock Keeping Unit (SKU).
+        Returns the complete product data including all dimensions and attributes.
       operationId: getProductBySku
       responses:
         '200':
-          description: Product retrieved successfully
+          description: Product retrieved successfully with all associated data.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
         '404':
-          description: Product not found
+          description: |-
+            Product not found. No product exists in the catalog with the specified SKU.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                code: 404
+                message: "Product with SKU 'UNKNOWN-SKU' not found"
     put:
       tags:
         - Products
       summary: Update a product (full replace)
-      description: Replaces the entire product resource with the provided data. All fields are required.
+      description: |-
+        Replaces the entire product resource with the provided data.
+        This is a full replacement operation - all fields must be provided.
+
+        **Important Notes:**
+        - The SKU in the path must match the SKU in the request body
+        - All required fields must be provided (this is not a partial update)
+        - Validation rules apply to all provided data
+
+        **Side Effects:**
+        - A ProductUpdatedEvent is published to Kafka upon successful update
+        - The updated_at timestamp is automatically refreshed
+        - The version field is incremented for optimistic locking
       operationId: updateProduct
       requestBody:
-        description: The full product object to replace the existing one.
+        description: |-
+          The complete product object to replace the existing one.
+          All fields are required as this performs a full replacement.
         required: true
         content:
           application/json:
@@ -195,19 +300,23 @@ paths:
               $ref: '#/components/schemas/Product'
       responses:
         '200':
-          description: Product updated successfully
+          description: |-
+            Product updated successfully. Returns the complete updated product data.
+            A ProductUpdatedEvent has been published to the event stream.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
         '400':
-          description: Validation failed for the provided product data
+          description: |-
+            Validation failed for the provided product data.
+            See POST /products for common validation error causes.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Product not found
+          description: Product not found with the specified SKU.
           content:
             application/json:
               schema:
@@ -216,30 +325,49 @@ paths:
       tags:
         - Products
       summary: Partially update a product
-      description: Updates one or more fields of an existing product. Fields not included in the request body will not be changed.
+      description: |-
+        Updates one or more fields of an existing product.
+        Only the fields included in the request body will be changed;
+        omitted fields retain their current values.
+
+        **Partial Update Behavior:**
+        - Include only the fields you want to modify
+        - Nested objects (dimensions, attributes) are replaced entirely if provided
+        - To update a single dimension, you must provide the complete dimensions object
+
+        **Side Effects:**
+        - A ProductUpdatedEvent is published to Kafka upon successful update
+        - The updated_at timestamp is automatically refreshed
       operationId: patchProduct
       requestBody:
-        description: A product object with the fields to be updated.
+        description: |-
+          A product object containing only the fields to be updated.
+          Omitted fields will not be modified.
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Product'
+            example:
+              sku: EXAMPLE-SKU-123
+              title: Updated Industrial Grade Widget Pro
       responses:
         '200':
-          description: Product partially updated
+          description: |-
+            Product partially updated successfully.
+            Returns the complete product with all fields (including unchanged ones).
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Product'
         '400':
-          description: Validation failed for the provided product data
+          description: Validation failed for the provided update data.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
         '404':
-          description: Product not found
+          description: Product not found with the specified SKU.
           content:
             application/json:
               schema:
@@ -248,13 +376,21 @@ paths:
       tags:
         - Products
       summary: Delete a product
-      description: Deletes a product from the catalog by its SKU.
+      description: |-
+        Permanently deletes a product from the catalog by its SKU.
+        This operation cannot be undone.
+
+        **Side Effects:**
+        - A ProductDeletedEvent is published to Kafka upon successful deletion
+        - All associated data (dimensions, attributes) is removed
       operationId: deleteProduct
       responses:
         '204':
-          description: Product deleted successfully
+          description: |-
+            Product deleted successfully. No content is returned.
+            A ProductDeletedEvent has been published to the event stream.
         '404':
-          description: Product not found
+          description: Product not found with the specified SKU.
           content:
             application/json:
               schema:
@@ -263,21 +399,34 @@ components:
   schemas:
     Product:
       type: object
-      description: The core Product aggregate root, representing a unique item in the catalog.
+      description: |-
+        The core Product aggregate root, representing a unique item in the catalog.
+
+        A Product is the central domain entity that encapsulates:
+        - Identity (SKU)
+        - Basic information (title)
+        - Physical characteristics (dimensions for both item and packaging)
+        - Compliance data (hazardous material information)
+
+        Products follow Domain-Driven Design principles as an Aggregate Root,
+        ensuring consistency and encapsulating business rules.
       required:
         - sku
         - title
-        - dimensions
-        - attributes
       properties:
         sku:
           type: string
-          description: The unique, seller-defined Stock Keeping Unit.
+          description: |-
+            The unique, seller-defined Stock Keeping Unit.
+            This identifier must be unique across the entire product catalog
+            and is immutable once assigned.
           minLength: 1
           example: EXAMPLE-SKU-123
         title:
           type: string
-          description: The display name of the product.
+          description: |-
+            The display name of the product shown to customers.
+            Should be descriptive and meaningful for the product.
           minLength: 1
           example: Industrial Grade Widget
         dimensions:
@@ -286,7 +435,11 @@ components:
           $ref: '#/components/schemas/Attributes'
     ProductPage:
       type: object
-      description: Paged response metadata and product entries.
+      description: |-
+        Paginated response wrapper containing product entries and navigation metadata.
+
+        This schema implements cursor-based pagination with comprehensive metadata
+        to support UI pagination controls and data navigation.
       required:
         - content
         - total_pages
@@ -298,46 +451,85 @@ components:
       properties:
         content:
           type: array
-          description: Products for the current page.
+          description: |-
+            List of products for the current page.
+            May be empty if no products match the pagination criteria.
           items:
             $ref: '#/components/schemas/Product'
         total_pages:
           type: integer
-          description: Total number of pages available.
+          description: |-
+            Total number of pages available based on the current page size.
+            Calculated as ceil(total_elements / page_size).
           minimum: 0
+          example: 5
         total_elements:
           type: integer
           format: int64
-          description: Total number of products across all pages.
+          description: |-
+            Total number of products across all pages in the catalog.
+            This count reflects the entire dataset, not just the current page.
           minimum: 0
+          example: 100
         current_page:
           type: integer
-          description: Current page number (0-based).
+          description: |-
+            Current page number using 0-based indexing.
+            First page is 0, second page is 1, etc.
           minimum: 0
+          example: 1
         page_size:
           type: integer
-          description: Number of items per page.
+          description: |-
+            Number of items per page as requested.
+            This is the maximum number of items that can appear in the content array.
           minimum: 1
+          example: 20
         is_first:
           type: boolean
-          description: Indicates whether this is the first page.
+          description: |-
+            Indicates whether this is the first page of results.
+            True when current_page equals 0.
+          example: false
         is_last:
           type: boolean
-          description: Indicates whether this is the last page.
+          description: |-
+            Indicates whether this is the last page of results.
+            True when current_page equals (total_pages - 1) or when content is empty.
+          example: false
     Dimensions:
       type: object
-      description: Physical dimensions of the item and its packaging.
+      description: |-
+        Physical dimensions container for both the product item itself and its packaging.
+
+        This object groups two dimension sets:
+        - **item**: The actual product dimensions without any packaging
+        - **package**: The product dimensions including packaging materials
+
+        Business Rule: Item dimensions must always fit within package dimensions.
       required:
         - item
         - package
       properties:
         item:
           $ref: '#/components/schemas/DimensionSet'
+          description: |-
+            Physical dimensions of the product itself without packaging.
+            Used for storage calculations and product specifications.
         package:
           $ref: '#/components/schemas/DimensionSet'
+          description: |-
+            Physical dimensions of the product with its packaging.
+            Used for shipping calculations and logistics planning.
     DimensionSet:
       type: object
-      description: A complete set of measurements for an object.
+      description: |-
+        A complete set of physical measurements for an object including
+        length, width, height, and weight.
+
+        All measurements must use consistent units within their category:
+        - Length/Width/Height: Use dimension units (INCHES, CENTIMETERS, etc.)
+        - Weight: Use weight units (POUNDS, KILOGRAMS, etc.)
       required:
         - length
         - width
@@ -346,15 +538,33 @@ components:
       properties:
         length:
           $ref: '#/components/schemas/DimensionMeasurement'
+          description: |-
+            The longest horizontal measurement of the object.
+            Typically the primary axis when the object is in its natural orientation.
         width:
           $ref: '#/components/schemas/DimensionMeasurement'
+          description: |-
+            The shorter horizontal measurement of the object.
+            Perpendicular to the length axis.
         height:
           $ref: '#/components/schemas/DimensionMeasurement'
+          description: |-
+            The vertical measurement of the object.
+            Distance from base to top when in natural orientation.
         weight:
           $ref: '#/components/schemas/WeightMeasurement'
+          description: |-
+            The total weight of the object.
+            For item dimensions, this is the product weight only.
+            For package dimensions, this includes packaging materials.
     DimensionMeasurement:
       type: object
-      description: A measurement of length, width, or height.
+      description: |-
+        A single linear measurement with its unit of measure.
+        Used for length, width, or height measurements.
+
+        The value must be a positive number (greater than zero).
+        The unit specifies the measurement system being used.
       required:
         - value
         - unit
@@ -362,13 +572,18 @@ components:
         value:
           type: number
           format: double
-          description: Numeric value of the measurement. Must be positive.
+          description: |-
+            Numeric value of the measurement.
+            Must be strictly positive (greater than zero).
+            Precision up to the decimal places appropriate for the unit.
           minimum: 0
           exclusiveMinimum: true
           example: 10.5
         unit:
           type: string
-          description: Unit of measurement for dimensions.
+          description: |-
+            Unit of measurement for the dimension.
+            Supported units cover both imperial and metric systems.
           enum:
             - INCHES
             - CENTIMETERS
@@ -378,7 +593,11 @@ components:
           example: INCHES
     WeightMeasurement:
       type: object
-      description: A measurement of weight.
+      description: |-
+        A weight measurement with its unit of measure.
+
+        The value must be a positive number (greater than zero).
+        The unit specifies the weight measurement system being used.
       required:
         - value
         - unit
@@ -386,13 +605,18 @@ components:
         value:
           type: number
           format: double
-          description: Numeric value of the weight. Must be positive.
+          description: |-
+            Numeric value of the weight.
+            Must be strictly positive (greater than zero).
+            Precision supports fractional weights for accurate shipping calculations.
           minimum: 0
           exclusiveMinimum: true
           example: 5.8
         unit:
           type: string
-          description: Unit of measurement for weight.
+          description: |-
+            Unit of measurement for weight.
+            Supported units cover both imperial and metric systems.
           enum:
             - POUNDS
             - KILOGRAMS
@@ -401,31 +625,66 @@ components:
           example: POUNDS
     Attributes:
       type: object
-      description: Additional product characteristics and compliance data.
+      description: |-
+        Additional product characteristics and compliance data.
+
+        This container holds regulatory and safety-related information
+        that affects how the product can be stored, shipped, and handled.
+        Currently includes hazardous material classification.
       required:
         - hazmat_info
       properties:
         hazmat_info:
           $ref: '#/components/schemas/HazmatInfo'
+          description: |-
+            Hazardous material classification and compliance information.
+            Required for all products to ensure proper handling and shipping.
     HazmatInfo:
       type: object
-      description: Information related to hazardous material classification.
+      description: |-
+        Hazardous material (HAZMAT) classification information.
+
+        This information is critical for:
+        - Shipping compliance and carrier requirements
+        - Warehouse storage regulations
+        - Safety documentation and labeling
+        - Regulatory reporting
+
+        Business Rules:
+        - If is_hazmat is true, un_number must be provided
+        - If is_hazmat is false, un_number should be null or omitted
       required:
         - is_hazmat
       properties:
         is_hazmat:
           type: boolean
-          description: Indicates whether the product is hazardous material.
+          description: |-
+            Flag indicating whether the product is classified as hazardous material.
+            When true, additional compliance requirements apply.
           example: true
         un_number:
           type: string
-          description: UN number for the hazardous material. Required when is_hazmat is true.
+          description: |-
+            United Nations number for hazardous material classification.
+            This is a four-digit identifier assigned by the UN to dangerous goods.
+            Required when is_hazmat is true.
+
+            Format: "UN" followed by four digits (e.g., UN1950 for Aerosols).
+            Reference: UN Recommendations on the Transport of Dangerous Goods.
+          nullable: true
           pattern: '^UN\d{4}$'
           example: UN1950
-          nullable: true
     Error:
       type: object
-      description: Error response payload.
+      description: |-
+        Standard error response payload returned when an operation fails.
+
+        Error responses provide:
+        - A numeric code matching the HTTP status for programmatic handling
+        - A human-readable message explaining what went wrong
+
+        Clients should use the HTTP status code for error categorization
+        and the message for displaying user-friendly error information.
       required:
         - code
         - message
@@ -433,9 +692,18 @@ components:
         code:
           type: integer
           format: int32
-          description: Numeric error code aligned with HTTP status.
+          description: |-
+            Numeric error code aligned with HTTP status code.
+            Common values:
+            - 400: Bad Request (validation errors)
+            - 404: Not Found
+            - 409: Conflict (duplicate SKU)
+            - 500: Internal Server Error
           example: 400
         message:
           type: string
-          description: Human-readable explanation of the error.
+          description: |-
+            Human-readable explanation of the error.
+            Provides specific details about what caused the failure
+            to help with debugging and user communication.
           example: "Validation failed: sku must not be blank"
