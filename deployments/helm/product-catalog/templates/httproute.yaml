@@ -1,0 +1,89 @@
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "product-catalog.fullname" . }}
+  labels:
+    {{- include "product-catalog.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+    {{- range .Values.gateway.parentRefs }}
+    - name: {{ .name }}
+      {{- if .namespace }}
+      namespace: {{ .namespace }}
+      {{- end }}
+      {{- if .sectionName }}
+      sectionName: {{ .sectionName }}
+      {{- end }}
+    {{- end }}
+  {{- if .Values.gateway.hostnames }}
+  hostnames:
+    {{- toYaml .Values.gateway.hostnames | nindent 4 }}
+  {{- end }}
+  rules:
+    # Route: POST /products - Create a new product
+    - matches:
+        - path:
+            type: Exact
+            value: /products
+          method: POST
+      backendRefs:
+        - name: {{ include "product-catalog.fullname" . }}
+          port: {{ .Values.service.port }}
+          weight: 100
+
+    # Route: GET /products - List all products (with pagination)
+    - matches:
+        - path:
+            type: Exact
+            value: /products
+          method: GET
+      backendRefs:
+        - name: {{ include "product-catalog.fullname" . }}
+          port: {{ .Values.service.port }}
+          weight: 100
+
+    # Route: GET /products/{sku} - Get product by SKU
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /products/
+          method: GET
+      backendRefs:
+        - name: {{ include "product-catalog.fullname" . }}
+          port: {{ .Values.service.port }}
+          weight: 100
+
+    # Route: PUT /products/{sku} - Update a product (full replace)
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /products/
+          method: PUT
+      backendRefs:
+        - name: {{ include "product-catalog.fullname" . }}
+          port: {{ .Values.service.port }}
+          weight: 100
+
+    # Route: PATCH /products/{sku} - Partially update a product
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /products/
+          method: PATCH
+      backendRefs:
+        - name: {{ include "product-catalog.fullname" . }}
+          port: {{ .Values.service.port }}
+          weight: 100
+
+    # Route: DELETE /products/{sku} - Delete a product
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /products/
+          method: DELETE
+      backendRefs:
+        - name: {{ include "product-catalog.fullname" . }}
+          port: {{ .Values.service.port }}
+          weight: 100
+{{- end }}

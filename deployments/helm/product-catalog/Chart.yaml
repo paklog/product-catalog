@@ -1,0 +1,15 @@
+apiVersion: v2
+name: product-catalog
+description: A Helm chart for Product Catalog Service - RESTful API for managing product catalog data
+type: application
+version: 0.1.0
+appVersion: "1.1.0"
+keywords:
+  - product-catalog
+  - ddd
+  - clean-architecture
+  - rest-api
+home: https://github.com/paklog/product-catalog
+maintainers:
+  - name: Paklog Team
+    url: https://github.com/paklog/product-catalog

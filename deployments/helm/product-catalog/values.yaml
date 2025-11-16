@@ -1,0 +1,138 @@
+# Default values for product-catalog
+replicaCount: 2
+
+image:
+  repository: paklog/product-catalog
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8082
+  targetPort: 8082
+
+# Gateway API configuration
+gateway:
+  enabled: true
+  gatewayClassName: ""  # Set to your Gateway class name (e.g., "istio", "nginx", "contour")
+  parentRefs:
+    - name: main-gateway
+      namespace: ""  # Leave empty to use release namespace
+      sectionName: http
+  hostnames:
+    - "api.example.com"
+  # Routes based on OpenAPI spec
+  routes:
+    products:
+      path: /products
+      pathType: PathPrefix
+    productBySku:
+      path: /products/{sku}
+      pathType: Exact
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: http
+  initialDelaySeconds: 20
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Application configuration
+config:
+  server:
+    port: 8082
+  spring:
+    profiles:
+      active: kubernetes
+    datasource:
+      url: jdbc:postgresql://postgresql:5432/product_catalog
+      username: product_catalog
+      driverClassName: org.postgresql.Driver
+    jpa:
+      hibernate:
+        ddlAuto: validate
+      showSql: false
+    kafka:
+      bootstrapServers: kafka:9092
+      producer:
+        keySerializer: org.apache.kafka.common.serialization.StringSerializer
+        valueSerializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+# External secrets (should be provided via sealed secrets or external secret operator)
+secrets:
+  database:
+    password: ""  # Set via --set or external secret
+  kafka:
+    # Add any Kafka authentication secrets here
+    enabled: false
+
+# PostgreSQL dependency (optional, for development)
+postgresql:
+  enabled: false
+  auth:
+    database: product_catalog
+    username: product_catalog
+    password: ""
+
+# Kafka dependency (optional, for development)
+kafka:
+  enabled: false

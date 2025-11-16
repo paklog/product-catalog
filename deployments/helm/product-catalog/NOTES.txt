@@ -1,0 +1,66 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
+
+## Accessing the Product Catalog API
+
+{{- if .Values.gateway.enabled }}
+
+The HTTPRoute has been configured with the following routes based on the OpenAPI specification:
+
+  - POST   /products           - Create a new product
+  - GET    /products           - List all products (paginated)
+  - GET    /products/{sku}     - Get product by SKU
+  - PUT    /products/{sku}     - Update a product (full replace)
+  - PATCH  /products/{sku}     - Partially update a product
+  - DELETE /products/{sku}     - Delete a product
+
+Hostnames configured:
+{{- range .Values.gateway.hostnames }}
+  - {{ . }}
+{{- end }}
+
+Make sure your Gateway ({{ (index .Values.gateway.parentRefs 0).name }}) is properly configured and running.
+
+{{- else }}
+
+Gateway API routing is disabled. You can access the service directly:
+
+  kubectl port-forward svc/{{ include "product-catalog.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+
+Then access the API at: http://localhost:{{ .Values.service.port }}/products
+
+{{- end }}
+
+## API Documentation
+
+The Product Catalog API follows DDD principles with the Product as the central Aggregate.
+Key features:
+- Full CRUD operations for product management
+- Support for item and package dimensions with multiple unit systems
+- Hazardous material compliance tracking
+- Event-driven architecture with Kafka integration
+
+For full API documentation, refer to the OpenAPI specification in the repository.
+
+## Health Checks
+
+The service exposes health check endpoints:
+  - Liveness:  /actuator/health/liveness
+  - Readiness: /actuator/health/readiness
+  - Metrics:   /actuator/prometheus
+
+## Important Notes
+
+1. Ensure PostgreSQL is accessible at: {{ .Values.config.spring.datasource.url }}
+2. Ensure Kafka is accessible at: {{ .Values.config.spring.kafka.bootstrapServers }}
+3. Database credentials should be provided via secrets
+
+{{- if not .Values.secrets.database.password }}
+WARNING: Database password is not set. Please provide it via --set secrets.database.password=<password>
+{{- end }}
