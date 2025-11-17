@@ -25,6 +25,7 @@
         <testcontainers.version>1.19.3</testcontainers.version>
         <springdoc.version>2.2.0</springdoc.version>
         <loki-logback-appender.version>1.5.1</loki-logback-appender.version>
+        <native-maven-plugin.version>0.9.28</native-maven-plugin.version>
     </properties>
     
     <dependencies>
@@ -66,6 +67,19 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
+        </dependency>
+
+        <!-- JSON Schema Validator -->
+        <dependency>
+            <groupId>com.github.java-json-tools</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>2.2.14</version>
+        </dependency>
+
+        <!-- AspectJ for AOP -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
         <!-- Observability Dependencies -->
@@ -171,4 +185,62 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Native Profile for GraalVM Native Image -->
+        <profile>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <image>
+                                <builder>paketobuildpacks/builder-jammy-tiny:latest</builder>
+                                <env>
+                                    <BP_NATIVE_IMAGE>true</BP_NATIVE_IMAGE>
+                                    <BP_JVM_VERSION>21</BP_JVM_VERSION>
+                                </env>
+                            </image>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Native Local Profile - For building native executable locally with GraalVM -->
+        <profile>
+            <id>native-local</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <version>${native-maven-plugin.version}</version>
+                        <extensions>true</extensions>
+                        <executions>
+                            <execution>
+                                <id>build-native</id>
+                                <goals>
+                                    <goal>compile-no-fork</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <imageName>${project.artifactId}</imageName>
+                            <mainClass>com.paklog.productcatalog.ProductCatalogApplication</mainClass>
+                            <buildArgs>
+                                <buildArg>--no-fallback</buildArg>
+                                <buildArg>--install-exit-handlers</buildArg>
+                                <buildArg>-H:+ReportExceptionStackTraces</buildArg>
+                                <buildArg>--enable-url-protocols=http,https</buildArg>
+                            </buildArgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

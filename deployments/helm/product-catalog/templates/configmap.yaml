@@ -13,29 +13,69 @@ data:
       profiles:
         active: {{ .Values.config.spring.profiles.active }}
 
-      datasource:
-        url: {{ .Values.config.spring.datasource.url }}
-        username: {{ .Values.config.spring.datasource.username }}
-        driver-class-name: {{ .Values.config.spring.datasource.driverClassName }}
+      application:
+        name: {{ .Values.config.spring.application.name }}
 
-      jpa:
-        hibernate:
-          ddl-auto: {{ .Values.config.spring.jpa.hibernate.ddlAuto }}
-        show-sql: {{ .Values.config.spring.jpa.showSql }}
+      data:
+        mongodb:
+          uri: {{ .Values.config.spring.data.mongodb.uri }}
+          auto-index-creation: {{ .Values.config.spring.data.mongodb.autoIndexCreation }}
 
       kafka:
         bootstrap-servers: {{ .Values.config.spring.kafka.bootstrapServers }}
         producer:
           key-serializer: {{ .Values.config.spring.kafka.producer.keySerializer }}
           value-serializer: {{ .Values.config.spring.kafka.producer.valueSerializer }}
+          properties:
+            spring:
+              json:
+                add:
+                  type:
+                    headers: false
+        consumer:
+          group-id: {{ .Values.config.spring.kafka.consumer.groupId }}
+          key-deserializer: {{ .Values.config.spring.kafka.consumer.keyDeserializer }}
+          value-deserializer: {{ .Values.config.spring.kafka.consumer.valueDeserializer }}
+          properties:
+            spring:
+              json:
+                trusted:
+                  packages: com.paklog.productcatalog
+
+      jackson:
+        property-naming-strategy: {{ .Values.config.spring.jackson.propertyNamingStrategy }}
+        default-property-inclusion: {{ .Values.config.spring.jackson.defaultPropertyInclusion }}
 
     management:
       endpoints:
         web:
           exposure:
-            include: health,info,metrics,prometheus
+            include: {{ .Values.config.management.endpoints.web.exposure.include }}
       endpoint:
         health:
+          show-details: {{ .Values.config.management.endpoint.health.showDetails }}
           probes:
             enabled: true
-          show-details: always
+      metrics:
+        export:
+          prometheus:
+            enabled: {{ .Values.config.management.metrics.export.prometheus.enabled }}
+        tags:
+          application: {{ .Values.config.management.metrics.tags.application }}
+          environment: {{ .Values.config.management.metrics.tags.environment }}
+      tracing:
+        sampling:
+          probability: {{ .Values.config.management.tracing.sampling.probability }}
+
+    product-catalog:
+      kafka:
+        topics:
+          product-events: {{ .Values.config.productCatalog.kafka.topics.productEvents }}
+      mongodb:
+        database: {{ .Values.config.productCatalog.mongodb.database }}
+        collections:
+          products: {{ .Values.config.productCatalog.mongodb.collections.products }}
+      pagination:
+        default-limit: {{ .Values.config.productCatalog.pagination.defaultLimit }}
+        max-limit: {{ .Values.config.productCatalog.pagination.maxLimit }}
+        default-offset: {{ .Values.config.productCatalog.pagination.defaultOffset }}

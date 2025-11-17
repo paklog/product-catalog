@@ -1,0 +1,97 @@
+# Example values file for deploying with GraalVM Native Image
+# Usage: helm install product-catalog ./product-catalog -f values-native.yaml
+
+# Enable native image mode for faster startup and lower memory usage
+image:
+  repository: paklog/product-catalog
+  pullPolicy: IfNotPresent
+  tag: "1.0.0-SNAPSHOT"  # Use your native image tag
+  native: true  # Enable native image optimizations
+
+# Reduced replica count for testing (increase for production)
+replicaCount: 2
+
+# Gateway configuration
+gateway:
+  enabled: true
+  gatewayClassName: "istio"  # or "nginx", "contour", etc.
+  parentRefs:
+    - name: main-gateway
+      namespace: default
+      sectionName: http
+  hostnames:
+    - "product-catalog.example.com"
+
+# Native image uses much less resources
+# These values are automatically selected when image.native=true
+resources:
+  native:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Faster startup times for native images
+livenessProbe:
+  native:
+    initialDelaySeconds: 10
+
+readinessProbe:
+  native:
+    initialDelaySeconds: 5
+
+# Enable autoscaling for production
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 75
+
+# MongoDB configuration
+config:
+  spring:
+    data:
+      mongodb:
+        uri: mongodb://mongodb.database.svc.cluster.local:27017/productcatalog
+    kafka:
+      bootstrapServers: kafka.messaging.svc.cluster.local:9092
+
+# Security: Use external secrets in production
+# Example using External Secrets Operator or Sealed Secrets
+secrets:
+  mongodb:
+    uri: ""  # Will be provided by external secret
+  kafka:
+    enabled: false
+
+# Production-ready pod security
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# Node affinity for optimal placement
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - product-catalog
+          topologyKey: kubernetes.io/hostname

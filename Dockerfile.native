@@ -1,0 +1,80 @@
+# ============================================
+# Multi-stage Dockerfile for Native Image Build
+# Creates ultra-lightweight container with GraalVM Native Image
+# ============================================
+
+# ============================================
+# Stage 1: GraalVM Native Build Stage
+# ============================================
+FROM ghcr.io/graalvm/native-image-community:21-ol9 AS builder
+
+# Set build arguments
+ARG APP_VERSION=1.0.0-SNAPSHOT
+ARG BUILD_DATE
+ARG VCS_REF
+
+# Install Maven
+RUN microdnf install -y maven && microdnf clean all
+
+# Set working directory
+WORKDIR /build
+
+# Copy Maven files for dependency caching
+COPY pom.xml .
+
+# Download dependencies (cached layer)
+RUN mvn dependency:go-offline -B || true
+
+# Copy application source
+COPY src ./src
+
+# Build native image
+# This will take several minutes but results in a highly optimized binary
+RUN mvn -Pnative -DskipTests package && \
+    ls -lh target/
+
+# ============================================
+# Stage 2: Minimal Runtime Stage
+# ============================================
+FROM docker.io/oraclelinux:9-slim
+
+# Metadata labels (OCI standard)
+LABEL org.opencontainers.image.title="Product Catalog Service (Native)" \
+      org.opencontainers.image.description="Product catalog service - GraalVM Native Image" \
+      org.opencontainers.image.version="${APP_VERSION}" \
+      org.opencontainers.image.vendor="Paklog" \
+      org.opencontainers.image.authors="Paklog Engineering Team" \
+      org.opencontainers.image.source="https://github.com/paklog/product-catalog" \
+      com.paklog.service.tier="core" \
+      com.paklog.service.phase="1" \
+      com.paklog.image.type="native"
+
+# Install minimal runtime dependencies
+RUN microdnf install -y glibc-langpack-en && \
+    microdnf clean all
+
+# Create non-root user and group
+RUN groupadd -r spring && useradd -r -g spring spring
+
+# Set working directory
+WORKDIR /app
+
+# Copy native executable from builder
+COPY --from=builder --chown=spring:spring /build/target/product-catalog /app/product-catalog
+
+# Switch to non-root user
+USER spring:spring
+
+# Expose application port
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
+
+# Native images don't need JVM options
+# They start much faster and use less memory by default
+ENTRYPOINT ["/app/product-catalog"]
+
+# Optional: Set Spring Boot properties via environment variables
+# ENV SPRING_PROFILES_ACTIVE=prod

@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://paklog.com/schemas/product-event.json",
+  "title": "ProductEvent",
+  "description": "Product lifecycle event schema for Kafka messages",
+  "type": "object",
+  "required": ["eventId", "occurredAt", "eventType", "sku", "data"],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique event identifier",
+      "examples": ["550e8400-e29b-41d4-a716-446655440000"]
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event occurrence timestamp",
+      "examples": ["2024-01-15T10:30:00Z"]
+    },
+    "eventType": {
+      "type": "string",
+      "enum": ["CREATED", "UPDATED", "DELETED"],
+      "description": "Type of product event"
+    },
+    "sku": {
+      "type": "string",
+      "pattern": "^[A-Z0-9-]{3,50}$",
+      "description": "Product SKU that changed",
+      "examples": ["LAPTOP-001"]
+    },
+    "data": {
+      "type": "object",
+      "description": "Event payload data",
+      "oneOf": [
+        {
+          "if": {
+            "properties": {
+              "eventType": {"const": "CREATED"}
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "$ref": "product-schema.json"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "eventType": {"const": "UPDATED"}
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "before": {
+                    "$ref": "product-schema.json"
+                  },
+                  "after": {
+                    "$ref": "product-schema.json"
+                  }
+                },
+                "required": ["before", "after"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "eventType": {"const": "DELETED"}
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "sku": {
+                    "type": "string",
+                    "pattern": "^[A-Z0-9-]{3,50}$"
+                  },
+                  "deletedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": ["sku", "deletedAt"]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "source": {
+      "type": "string",
+      "default": "product-catalog-service",
+      "description": "Source service that published the event"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "Event schema version"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "eventId": "550e8400-e29b-41d4-a716-446655440000",
+      "occurredAt": "2024-01-15T10:30:00Z",
+      "eventType": "CREATED",
+      "sku": "LAPTOP-001",
+      "data": {
+        "sku": "LAPTOP-001",
+        "title": "Gaming Laptop Pro",
+        "description": "High-performance gaming laptop",
+        "dimensions": {
+          "length": 35.5,
+          "width": 25.0,
+          "height": 2.5,
+          "unit": "CENTIMETERS"
+        },
+        "weight": {
+          "value": 2.5,
+          "unit": "KILOGRAMS"
+        },
+        "category": "ELECTRONICS",
+        "status": "ACTIVE",
+        "createdAt": "2024-01-15T10:30:00Z",
+        "updatedAt": "2024-01-15T10:30:00Z"
+      },
+      "source": "product-catalog-service",
+      "version": "1.0.0"
+    }
+  ]
+}

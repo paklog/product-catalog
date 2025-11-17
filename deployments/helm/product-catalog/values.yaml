@@ -5,6 +5,8 @@ image:
   repository: paklog/product-catalog
   pullPolicy: IfNotPresent
   tag: ""
+  # Set to true to use native image (GraalVM) for faster startup and lower memory
+  native: false
 
 imagePullSecrets: []
 nameOverride: ""
@@ -58,18 +60,32 @@ gateway:
       pathType: Exact
 
 resources:
-  limits:
-    cpu: 500m
-    memory: 512Mi
-  requests:
-    cpu: 250m
-    memory: 256Mi
+  # JVM resource limits (default)
+  jvm:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  # Native image resource limits (much lower due to GraalVM native compilation)
+  native:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 livenessProbe:
   httpGet:
     path: /actuator/health/liveness
     port: http
-  initialDelaySeconds: 30
+  # Native images start much faster, adjust initialDelaySeconds accordingly
+  jvm:
+    initialDelaySeconds: 30
+  native:
+    initialDelaySeconds: 10
   periodSeconds: 10
   timeoutSeconds: 5
   failureThreshold: 3
@@ -78,7 +94,11 @@ readinessProbe:
   httpGet:
     path: /actuator/health/readiness
     port: http
-  initialDelaySeconds: 20
+  # Native images start much faster, adjust initialDelaySeconds accordingly
+  jvm:
+    initialDelaySeconds: 20
+  native:
+    initialDelaySeconds: 5
   periodSeconds: 10
   timeoutSeconds: 5
   failureThreshold: 3
@@ -103,35 +123,79 @@ config:
   spring:
     profiles:
       active: kubernetes
-    datasource:
-      url: jdbc:postgresql://postgresql:5432/product_catalog
-      username: product_catalog
-      driverClassName: org.postgresql.Driver
-    jpa:
-      hibernate:
-        ddlAuto: validate
-      showSql: false
+    application:
+      name: product-catalog
+    data:
+      mongodb:
+        uri: mongodb://mongodb:27017/productcatalog
+        autoIndexCreation: true
     kafka:
       bootstrapServers: kafka:9092
       producer:
         keySerializer: org.apache.kafka.common.serialization.StringSerializer
         valueSerializer: org.springframework.kafka.support.serializer.JsonSerializer
+        properties:
+          spring.json.add.type.headers: false
+      consumer:
+        groupId: product-catalog-service
+        keyDeserializer: org.apache.kafka.common.serialization.StringDeserializer
+        valueDeserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+        properties:
+          spring.json.trusted.packages: com.paklog.productcatalog
+    jackson:
+      propertyNamingStrategy: SNAKE_CASE
+      defaultPropertyInclusion: NON_NULL
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics,prometheus
+    endpoint:
+      health:
+        showDetails: when-authorized
+    metrics:
+      export:
+        prometheus:
+          enabled: true
+      tags:
+        application: product-catalog
+        environment: kubernetes
+    tracing:
+      sampling:
+        probability: 1.0
+  productCatalog:
+    kafka:
+      topics:
+        productEvents: order-fulfillment-core.product-catalog.events
+    mongodb:
+      database: productcatalog
+      collections:
+        products: products
+    pagination:
+      defaultLimit: 20
+      maxLimit: 100
+      defaultOffset: 0
 
 # External secrets (should be provided via sealed secrets or external secret operator)
 secrets:
-  database:
-    password: ""  # Set via --set or external secret
+  mongodb:
+    uri: ""  # Set via --set or external secret (overrides config.spring.data.mongodb.uri)
   kafka:
     # Add any Kafka authentication secrets here
     enabled: false
 
-# PostgreSQL dependency (optional, for development)
-postgresql:
+# MongoDB dependency (optional, for development)
+mongodb:
   enabled: false
   auth:
-    database: product_catalog
+    enabled: true
+    rootPassword: ""
     username: product_catalog
     password: ""
+    database: productcatalog
+  persistence:
+    enabled: true
+    size: 8Gi
 
 # Kafka dependency (optional, for development)
 kafka:

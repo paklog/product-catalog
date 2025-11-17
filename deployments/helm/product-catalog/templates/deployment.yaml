@@ -42,20 +42,48 @@ spec:
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            httpGet:
+              path: {{ .Values.livenessProbe.httpGet.path }}
+              port: {{ .Values.livenessProbe.httpGet.port }}
+            {{- if .Values.image.native }}
+            initialDelaySeconds: {{ .Values.livenessProbe.native.initialDelaySeconds }}
+            {{- else }}
+            initialDelaySeconds: {{ .Values.livenessProbe.jvm.initialDelaySeconds }}
+            {{- end }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            httpGet:
+              path: {{ .Values.readinessProbe.httpGet.path }}
+              port: {{ .Values.readinessProbe.httpGet.port }}
+            {{- if .Values.image.native }}
+            initialDelaySeconds: {{ .Values.readinessProbe.native.initialDelaySeconds }}
+            {{- else }}
+            initialDelaySeconds: {{ .Values.readinessProbe.jvm.initialDelaySeconds }}
+            {{- end }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- if .Values.image.native }}
+            {{- toYaml .Values.resources.native | nindent 12 }}
+            {{- else }}
+            {{- toYaml .Values.resources.jvm | nindent 12 }}
+            {{- end }}
           env:
             - name: SPRING_CONFIG_LOCATION
               value: /config/application.yaml
-            {{- if .Values.secrets.database.password }}
-            - name: SPRING_DATASOURCE_PASSWORD
+            {{- if .Values.secrets.mongodb.uri }}
+            - name: SPRING_DATA_MONGODB_URI
               valueFrom:
                 secretKeyRef:
                   name: {{ include "product-catalog.fullname" . }}
-                  key: database-password
+                  key: mongodb-uri
+            {{- end }}
+            {{- if .Values.image.native }}
+            - name: SPRING_NATIVE_IMAGE
+              value: "true"
             {{- end }}
           volumeMounts:
             - name: config

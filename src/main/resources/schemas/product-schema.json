@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://paklog.com/schemas/product.json",
+  "title": "Product",
+  "description": "Product entity schema for the Paklog Product Catalog service",
+  "type": "object",
+  "required": ["sku", "title", "dimensions", "weight", "status", "createdAt", "updatedAt"],
+  "properties": {
+    "sku": {
+      "type": "string",
+      "pattern": "^[A-Z0-9-]{3,50}$",
+      "minLength": 3,
+      "maxLength": 50,
+      "description": "Stock Keeping Unit - unique product identifier",
+      "examples": ["LAPTOP-001", "BOOK-JAVA-2024", "SHIRT-XL-RED"]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Product display name",
+      "examples": ["Gaming Laptop Pro", "Java Programming Guide", "Cotton T-Shirt"]
+    },
+    "description": {
+      "type": ["string", "null"],
+      "maxLength": 2000,
+      "description": "Detailed product description"
+    },
+    "dimensions": {
+      "type": "object",
+      "required": ["length", "width", "height", "unit"],
+      "properties": {
+        "length": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 1000.0,
+          "description": "Length in specified unit"
+        },
+        "width": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 1000.0,
+          "description": "Width in specified unit"
+        },
+        "height": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 1000.0,
+          "description": "Height in specified unit"
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["CENTIMETERS", "INCHES"],
+          "description": "Unit of measurement for dimensions"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Physical product dimensions"
+    },
+    "weight": {
+      "type": "object",
+      "required": ["value", "unit"],
+      "properties": {
+        "value": {
+          "type": "number",
+          "minimum": 0.001,
+          "maximum": 1000.0,
+          "description": "Weight value"
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["KILOGRAMS", "POUNDS"],
+          "description": "Weight unit"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Product weight information"
+    },
+    "category": {
+      "type": ["string", "null"],
+      "enum": ["ELECTRONICS", "BOOKS", "CLOTHING", "HOME_GARDEN", "SPORTS", "TOYS", null],
+      "description": "Product category"
+    },
+    "hazmat": {
+      "type": ["object", "null"],
+      "properties": {
+        "isHazmat": {
+          "type": "boolean",
+          "description": "Whether product contains hazardous materials"
+        },
+        "class": {
+          "type": ["string", "null"],
+          "enum": ["CLASS_1", "CLASS_2", "CLASS_3", "CLASS_4", "CLASS_5", "CLASS_6", "CLASS_7", "CLASS_8", "CLASS_9", null],
+          "description": "DOT hazmat classification"
+        },
+        "unNumber": {
+          "type": ["string", "null"],
+          "description": "UN identification number"
+        }
+      },
+      "required": ["isHazmat"],
+      "additionalProperties": false,
+      "description": "Hazardous materials information"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["ACTIVE", "INACTIVE", "DISCONTINUED"],
+      "description": "Product lifecycle status"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Product creation timestamp"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    }
+  },
+  "additionalProperties": false,
+  "examples": [
+    {
+      "sku": "LAPTOP-001",
+      "title": "Gaming Laptop Pro",
+      "description": "High-performance gaming laptop with RGB keyboard",
+      "dimensions": {
+        "length": 35.5,
+        "width": 25.0,
+        "height": 2.5,
+        "unit": "CENTIMETERS"
+      },
+      "weight": {
+        "value": 2.5,
+        "unit": "KILOGRAMS"
+      },
+      "category": "ELECTRONICS",
+      "hazmat": {
+        "isHazmat": false
+      },
+      "status": "ACTIVE",
+      "createdAt": "2024-01-15T10:30:00Z",
+      "updatedAt": "2024-01-15T10:30:00Z"
+    }
+  ]
+}
